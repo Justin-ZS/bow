@@ -1,0 +1,27 @@
+{
+  "name": "bow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild ./src/index.ts --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Justin-ZS/bow.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Justin-ZS/bow/issues"
+  },
+  "homepage": "https://github.com/Justin-ZS/bow#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "4.2.0",
+    "@typescript-eslint/parser": "4.2.0",
+    "esbuild": "0.7.5",
+    "eslint": "7.9.0",
+    "typescript": "4.0.3"
+  }
+}
