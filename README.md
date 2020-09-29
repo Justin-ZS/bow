@@ -1,6 +1,11 @@
-### Bow (WIP)
+## Bow (WIP)
 **Bow** is a pure TypeScript library to transform data tables.  
 Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.com/uwdata/arquero)
+
+## Run locally
+1. Clone this [repo](https://github.com/Justin-ZS/bow)
+1. Run `npm i`
+1. Run `npm run dev`
 
 ### Develop RoadMap
 - [ ] Support Subset Rows

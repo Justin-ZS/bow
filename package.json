@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild ./src/index.ts --target=es6 --platform=node --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
+    "dev": "node ./scripts/server",
+    "build": "esbuild ./src/index.ts --target=es6 --global-name=bow --platform=browser --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.2.0",
     "@typescript-eslint/parser": "4.2.0",
+    "browser-sync": "2.26.12",
     "esbuild": "0.7.5",
     "eslint": "7.9.0",
     "typescript": "4.0.3"

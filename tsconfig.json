@@ -17,7 +17,7 @@
     "paths": {
       "PureUtils": ["src/helpers/pureUtils"],
       "Typings": ["src/typings/"],
-      "Helpers": ["src/helpers/"],
+      "Helpers": ["src/helpers"],
     }
   }
 }
