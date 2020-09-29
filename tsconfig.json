@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
@@ -12,6 +13,11 @@
     "moduleResolution": "node",
     "lib": [
       "es2017"
-    ]
+    ],
+    "paths": {
+      "PureUtils": ["src/helpers/pureUtils"],
+      "Typings": ["src/typings/"],
+      "Helpers": ["src/helpers/"],
+    }
   }
 }

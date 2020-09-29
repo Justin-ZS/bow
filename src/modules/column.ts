@@ -1,19 +1,15 @@
+import { IColumn } from 'Typings';
+
 // abstract layer for vary column type
-
-export interface IColumn<T = any> {
-  getDatum: (index: number) => T,
-  length: number,
-}
-
-export class ArrayColumn<T = any> implements IColumn<T> {
+export class ArrayColumn<T = unknown> implements IColumn<T> {
   private data: T[] = [];
   public readonly isArrayColumn = true;
 
-  static create<T = any>(...args: ConstructorParameters<typeof ArrayColumn>) {
+  static create<T = unknown>(...args: ConstructorParameters<typeof ArrayColumn>) {
     return new ArrayColumn<T>(...args);
   }
-  static from<T = any>(data: any): ArrayColumn {
-    if (data.isArrayColumn) return data as ArrayColumn<T>;
+  static from<T = unknown>(data: unknown): ArrayColumn {
+    if ((data as any).isArrayColumn) return data as ArrayColumn<T>;
     if (Array.isArray(data)) return ArrayColumn.create<T>(data);
     throw Error(`Not supported data type: ${typeof data}`);
   }
