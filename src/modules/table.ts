@@ -82,6 +82,9 @@ export default class Table implements ITable {
   get isFiltered() {
     return !!this._filterBy;
   }
+  get isGrouped() {
+    return !!this._groups;
+  }
   get isOrdered() {
     return !!this._orderBy;
   }
@@ -113,7 +116,7 @@ export default class Table implements ITable {
     const nc = this.colCount + ' col' + (this.colCount !== 1 ? 's' : '');
     return `Table: ${nc} x ${nr}`
       + (this.isFiltered ? ` (${this.totalRowCount} backing)` : '')
-      // + (this.isGroupedrowCount() ? `, ${this._group.size} _groups` : '')
+      + (this.isGrouped ? `, ${this._groups.size} groups` : '')
       + (this.isOrdered ? ', ordered' : '');
   }
   // #endregion
@@ -139,8 +142,8 @@ export default class Table implements ITable {
     return Table.create(
       data ?? this.data,
       {
-        fieldDescs: meta.fieldDescs ?? this.fields,
-        rowCount: meta.rowCount ?? this.totalRowCount,
+        fieldDescs: meta?.fieldDescs ?? this.fields,
+        rowCount: meta?.rowCount ?? this.totalRowCount,
       },
       filterBy ?? this._filterBy,
       groupBy ?? this._groups,
@@ -202,5 +205,23 @@ export default class Table implements ITable {
       fn(i, this.data, done);
       i += 1;
     }
+  }
+
+  print(limit = 0) {
+    let rowCount = this.rowCount;
+    if (limit) rowCount = Math.min(limit, rowCount);
+    const msg = `${this[Symbol.toStringTag]}. Showing ${rowCount} rows.`;
+    const names = this.fields.map(f => f.name);
+
+    const content = [];
+    this.traverse((rowIdx) => {
+      content.push(names.reduce((acc, name) => {
+        acc[name] = this.getCell(name, rowIdx);
+        return acc;
+      }, []));
+    });
+
+    console.log(msg);   // eslint-disable-line no-console
+    console.table(content); // eslint-disable-line no-console
   }
 }

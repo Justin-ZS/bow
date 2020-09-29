@@ -11,11 +11,13 @@ export const getGroupDesc = (
 
   let size = 0;
   const map = new Map();
+  const getCells = names.map(name => rowIdx => table.getCell(name, rowIdx));
   table.traverse((rowIdx) => {
-    const groupId = table.getRowByIdx(rowIdx)
-      .reduce((accMap: Map<any, any>, val, idx) => {
+    const groupId = getCells
+      .reduce((accMap: Map<any, any>, getVal, idx) => {
+        const val = getVal(rowIdx);
         let next = accMap.get(val);
-        if (!next) {
+        if (!accMap.has(val)) {
           if (idx === names.length - 1) {
             next = size;
             size += 1;

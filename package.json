@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild ./src/index.ts --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
+    "build": "esbuild ./src/index.ts --target=es6 --platform=node --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
   },
   "repository": {
     "type": "git",

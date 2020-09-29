@@ -15,6 +15,6 @@ type Visitor = (rowIdx: number, data: TableData) => void;
 
 export interface ITable {
   traverse: (fn: Visitor) => void;
-  getRowByIdx: (rowIdx: number) => unknown[]
+  getCell: (colName: string, rowIdx: number) => unknown;
   readonly totalRowCount: number;
 }
