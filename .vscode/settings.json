@@ -1,0 +1,17 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "editor.tabSize": 2,
+
+  "files.exclude": {
+    "**/node_modules": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/assets": true,
+    "**/*.md": true,
+    "**/package-lock.json": true,
+  },
+  "javascript.implicitProjectConfig.experimentalDecorators": true,
+}

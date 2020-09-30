@@ -18,5 +18,6 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 - [ ] Unit Tests
 - [ ] Performance BenchMark
 - [ ] Compatible with [Arrow](https://github.com/apache/arrow/tree/master/js)
+- [ ] Support Expression
 - [ ] Compatible with [DAX](https://docs.microsoft.com/en-us/dax/)
 - [ ] Export as SQL

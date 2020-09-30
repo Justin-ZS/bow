@@ -1,23 +1,9 @@
-import { DataType, ITable, TableData, GroupDescription } from 'Typings';
-import { getDataType } from 'Helpers';
+import { ITable, TableData, GroupDescription, FieldDescription } from 'Typings';
+import { getDataType, makeFieldDesc } from 'Helpers';
 import { pick } from 'PureUtils';
 
 import { ArrayColumn } from './column';
 import { getGroupDesc } from './groupBy';
-
-type FieldDescription = {
-  name: string,
-  idx: number,
-  type: DataType;
-}
-
-const makeFieldDesc = (
-  name: string,
-  idx: number,
-  type: DataType
-): FieldDescription =>
-  ({ name, idx, type });
-
 
 type ColumnsTable = Record<string, unknown[]>
 
@@ -30,7 +16,7 @@ export default class Table implements ITable {
   private readonly _groups: GroupDescription;
   private readonly _orderBy: Comparator;
 
-  private readonly fields: FieldDescription[];
+  private readonly _fields: FieldDescription[];
   public readonly totalRowCount;
 
   // #region static methods
@@ -70,7 +56,7 @@ export default class Table implements ITable {
   ) {
     this.data = data;
 
-    this.fields = meta.fieldDescs;
+    this._fields = meta.fieldDescs;
     this.totalRowCount = meta.rowCount;
 
     this._filterBy = filter ?? null;
@@ -95,7 +81,7 @@ export default class Table implements ITable {
       : this.totalRowCount;
   }
   get colCount() {
-    return this.fields.length;
+    return this._fields.length;
   }
 
   get columns() {
@@ -107,11 +93,14 @@ export default class Table implements ITable {
   get comparator() {
     return this._orderBy;
   }
+  get fields() {
+    return this._fields;
+  }
   // #endregion
 
   // #region overwrite native api
   get [Symbol.toStringTag]() {
-    if (!this.fields) return 'Object'; // bail if called on prototype
+    if (!this._fields) return 'Object'; // bail if called on prototype
     const nr = this.rowCount + ' row' + (this.rowCount !== 1 ? 's' : '');
     const nc = this.colCount + ' col' + (this.colCount !== 1 ? 's' : '');
     return `Table: ${nc} x ${nr}`
@@ -142,7 +131,7 @@ export default class Table implements ITable {
     return Table.create(
       data ?? this.data,
       {
-        fieldDescs: meta?.fieldDescs ?? this.fields,
+        fieldDescs: meta?.fieldDescs ?? this._fields,
         rowCount: meta?.rowCount ?? this.totalRowCount,
       },
       filterBy ?? this._filterBy,
@@ -155,7 +144,7 @@ export default class Table implements ITable {
   }
   getColumnByIdx(colIdx: number) {
     this.checkColIdxOverRange(colIdx);
-    return this.data[this.fields[colIdx].name];
+    return this.data[this._fields[colIdx].name];
   }
   getCell(colName: string, rowIdx: number) {
     return this.getColumnByName(colName).getDatum(rowIdx);
@@ -163,12 +152,12 @@ export default class Table implements ITable {
 
   getRowByIdx(rowIdx: number) {
     this.checkRowIdxOverRange(rowIdx);
-    return this.fields.map(f => this.data[f.name].getDatum(rowIdx));
+    return this._fields.map(f => this.data[f.name].getDatum(rowIdx));
   }
 
   extractColumnsByNames(colNames: string[]) {
     const columns = pick(colNames, this.data);
-    const fieldDescs = this.fields.filter(fd => colNames.includes(fd.name));
+    const fieldDescs = this._fields.filter(fd => colNames.includes(fd.name));
 
     return this.clone({
       data: columns,
@@ -205,23 +194,5 @@ export default class Table implements ITable {
       fn(i, this.data, done);
       i += 1;
     }
-  }
-
-  print(limit = 0) {
-    let rowCount = this.rowCount;
-    if (limit) rowCount = Math.min(limit, rowCount);
-    const msg = `${this[Symbol.toStringTag]}. Showing ${rowCount} rows.`;
-    const names = this.fields.map(f => f.name);
-
-    const content = [];
-    this.traverse((rowIdx) => {
-      content.push(names.reduce((acc, name) => {
-        acc[name] = this.getCell(name, rowIdx);
-        return acc;
-      }, []));
-    });
-
-    console.log(msg);   // eslint-disable-line no-console
-    console.table(content); // eslint-disable-line no-console
   }
 }

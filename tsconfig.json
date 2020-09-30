@@ -12,7 +12,8 @@
     "target": "es5",
     "moduleResolution": "node",
     "lib": [
-      "es2017"
+      "es2017",
+      "DOM"
     ],
     "paths": {
       "PureUtils": ["src/helpers/pureUtils"],

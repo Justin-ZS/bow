@@ -1,12 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Bow Lab</title>
+  <style>
+    body {
+      margin: 20px;
+    }
+    .content {
+      display: flex;
+      justify-content: space-between;
+      height: 400px;
+    }
+    .content .content-editor {
+      position: relative;
+      overflow: hidden;
+    }
+    .content .content-editor,
+    .content .content-result {
+      flex-grow: 1;
+      max-width: 49%;
+      border: 1px solid #333;
+    }
+    .content-result {
+      padding: 5px;
+    }
+    .content-result table {
+      margin: 10px 0;
+      border-collapse: collapse;
+      border-spacing: 0;
+      width: 100%;
+    }
+    .content-result table th {
+      background-color: #333;
+      color: #fff;
+    }
+    .content-result table tr {
+      border-bottom: 1px solid #ddd;
+    }
+    .content-result table tr:nth-child(odd) {
+      background-color: #fff;
+    }
+    .content-result table tr:nth-child(even) {
+      background-color: #f1f1f1;
+    }
+    .content-result table th,
+    .content-result table td {
+      padding: 8px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .content-result table th:first-child,
+    .content-result table td:first-child {
+      padding-left: 16px;
+    }
+  </style>
 </head>
+
 <body>
-  try bow in console
+  <h2>Example</h2>
+  <section class="content">
+    <div class="content-editor" name="example" id="example-editor"></div>
+    <div class="content-result" id="example-result"></div>
+  </section>
+
   <script src="./dist/bow.js"></script>
+  <script src="./assets/codeflask.min.js"></script>
+  <script>
+    const exampleFlask = new CodeFlask('#example-editor', {
+      language: 'js',
+      lineNumbers: true
+    });
+    exampleFlask.updateCode(`bow.Table
+  .fromColumns({
+    value: [1, 2, 3, 4, 5],
+    name: ['a', 'a', 'b', 'b', 'c'],
+  })
+  .groupBy('name');
+    `);
+    exampleFlask.onUpdate((code) => {
+      let expr = code.trim();
+      if (expr.endsWith(';')) expr = expr.slice(0, -1);
+      const html = eval(`bow.TableEx.Output.toHTML(${expr})`);
+      document.querySelector('#example-result').innerHTML = html;
+    });
+  </script>
 </body>
+
 </html>

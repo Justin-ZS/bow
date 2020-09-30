@@ -1,6 +1,14 @@
+import { DataType } from './enums';
+
 export interface IColumn<T = any> {
   getDatum: (index: number) => T,
   length: number,
+}
+
+export type FieldDescription = {
+  name: string,
+  idx: number,
+  type: DataType;
 }
 
 export type GroupDescription = {
@@ -11,10 +19,14 @@ export type GroupDescription = {
 
 export type TableData = Record<string, IColumn>;
 
-type Visitor = (rowIdx: number, data: TableData) => void;
+type Visitor = (rowIdx: number, done: () => void) => void;
 
 export interface ITable {
   traverse: (fn: Visitor) => void;
   getCell: (colName: string, rowIdx: number) => unknown;
+  
+  readonly [Symbol.toStringTag]: string;
+  readonly fields: FieldDescription[];
   readonly totalRowCount: number;
+  readonly rowCount: number;
 }
