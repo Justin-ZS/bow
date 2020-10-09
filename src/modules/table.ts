@@ -121,7 +121,7 @@ export default class Table implements ITable {
     }
   }
 
-  clone({ data, meta, filterBy, groupBy, orderBy }: {
+  public clone({ data, meta, filterBy, groupBy, orderBy }: {
     data?: TableData,
     meta?: any,
     filterBy?: any,
@@ -139,23 +139,23 @@ export default class Table implements ITable {
       orderBy ?? this._orderBy
     );
   }
-  getColumnByName(colName: string) {
+  public getColumnByName(colName: string) {
     return this.data[colName];
   }
-  getColumnByIdx(colIdx: number) {
+  public getColumnByIdx(colIdx: number) {
     this.checkColIdxOverRange(colIdx);
     return this.data[this._fields[colIdx].name];
   }
-  getCell(colName: string, rowIdx: number) {
+  public getCell(colName: string, rowIdx: number) {
     return this.getColumnByName(colName).getDatum(rowIdx);
   }
 
-  getRowByIdx(rowIdx: number) {
+  public getRowByIdx(rowIdx: number) {
     this.checkRowIdxOverRange(rowIdx);
     return this._fields.map(f => this.data[f.name].getDatum(rowIdx));
   }
 
-  extractColumnsByNames(colNames: string[]) {
+  public extractColumnsByNames(colNames: string[]) {
     const columns = pick(colNames, this.data);
     const fieldDescs = this._fields.filter(fd => colNames.includes(fd.name));
 
@@ -168,7 +168,7 @@ export default class Table implements ITable {
   }
 
   // TODO: waiting for slice method in IColumn
-  subsetRowsByRange(rangeFrom: number, rangeTo: number) {
+  public subsetRowsByRange(rangeFrom: number, rangeTo: number) {
     this.checkRowIdxOverRange(rangeFrom);
     this.checkRowIdxOverRange(rangeTo);
     if (rangeTo < rangeFrom) throw Error('rangeTo should bigger than rangeFrom!');
@@ -181,18 +181,18 @@ export default class Table implements ITable {
     // });
   }
 
-  groupBy(...names) {
+  public groupBy(...names) {
     return this.clone({ groupBy: getGroupDesc(this, names) });
   }
 
-  traverse(fn) {
-    let i = 0;
+  public traverse(fn) {
+    let idx = 0;
     let end = this.totalRowCount;
-    const done = () => end = i;
+    const done = () => end = idx;
 
-    while (i < end) {
-      fn(i, this.data, done);
-      i += 1;
+    while (idx < end) {
+      fn(idx, this.data, done);
+      idx += 1;
     }
   }
 }
