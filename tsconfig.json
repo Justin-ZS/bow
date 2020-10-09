@@ -16,9 +16,9 @@
       "DOM"
     ],
     "paths": {
-      "PureUtils": ["src/helpers/pureUtils"],
+      "PureUtils": ["src/utils/pureUtils"],
       "Typings": ["src/typings/"],
-      "Helpers": ["src/helpers"],
+      "Utils": ["src/utils"],
     }
   }
 }

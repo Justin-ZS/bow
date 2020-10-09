@@ -1,5 +1,5 @@
 import { ITable } from 'Typings';
-import { makeGroupDesc } from 'Helpers';
+import { makeGroupDesc } from 'Utils';
 
 export const getGroupDesc = (
   table: ITable,

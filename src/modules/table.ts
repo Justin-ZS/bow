@@ -1,5 +1,5 @@
 import { ITable, TableData, GroupDescription, FieldDescription } from 'Typings';
-import { getDataType, makeFieldDesc } from 'Helpers';
+import { getDataType, makeFieldDesc } from 'Utils';
 import { pick } from 'PureUtils';
 
 import { ArrayColumn } from './column';
