@@ -1,4 +1,5 @@
 import { DataType } from './enums';
+import { Predicate } from './common';
 
 export interface IColumn<T = unknown> {
   getDatum: (index: number) => T,
@@ -27,6 +28,9 @@ export interface ITable {
   traverse: (fn: Visitor) => void;
   getCell: (colName: string, rowIdx: number) => unknown;
   getRowByIdx: (rowIdx: number) => unknown[];
+
+  groupBy: (...names: string[]) => ITable,
+  filterBy: (pred: Predicate) => ITable,
   
   readonly [Symbol.toStringTag]: string;
   readonly fields: FieldDescription[];

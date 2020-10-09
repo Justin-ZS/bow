@@ -1,5 +1,5 @@
 import { Table } from './modules';
-import * as TableEx from './extensions/tableEx';
+import { TableEx } from './extensions/tableEx';
 
 export {
   Table,

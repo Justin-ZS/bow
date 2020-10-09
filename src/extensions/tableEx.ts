@@ -1,4 +1,6 @@
-import { ITable, OutputTableEx } from 'Typings';
+import { ITable, OutputTableEx, InputTableEx } from 'Typings';
+import { getDataType, makeFieldDesc } from 'Utils';
+import { Table, ArrayColumn } from 'Modules';
 
 // limit = 0 -> no limit
 const getRowCount = (table: ITable, limit = 0) => {
@@ -26,7 +28,6 @@ const toConsole = (table: ITable, limit: number) => {
   console.log(`${table[Symbol.toStringTag]}. Showing ${rowCount} rows.`);
   console.table(getTableData(table, rowCount));
 };
-
 
 const tableTemplate = (headers: string[], data: unknown[][], footer?: string) => `
 <table>
@@ -65,7 +66,37 @@ const toHTML = (table: ITable, limit = 0) => {
   return tableTemplate(names, data, footer);
 };
 
-export const Output: Record<string, OutputTableEx> = {
+const outputs: Record<string, OutputTableEx> = {
   toConsole,
   toHTML,
+};
+
+type ColumnsTable = Record<string, unknown[]>
+
+const fromColumns = (columns: ColumnsTable) => {
+  const data = Object.entries(columns)
+    .reduce((acc, [key, value]) => {
+      acc[key] = ArrayColumn.from(value);
+      return acc;
+    }, {});
+
+  const fieldDescs = Object.keys(columns)
+    .map((name, idx) =>
+      makeFieldDesc(name, idx, getDataType(columns[name][0])));
+
+  const fstField = fieldDescs[0];
+  const rowCount = fstField
+    ? columns[fstField.name].length
+    : 0;
+
+  return Table.create(data, { fieldDescs, rowCount });
+};
+
+const inputs: Record<string, InputTableEx> = {
+  fromColumns,
+};
+
+export const TableEx = {
+  ...outputs,
+  ...inputs,
 };

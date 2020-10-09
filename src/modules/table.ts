@@ -1,13 +1,9 @@
 import { ITable, TableData, GroupDescription, FieldDescription, IndexSet } from 'Typings';
 import { Comparator, Predicate } from 'CommonTypings';
-import { getDataType, makeFieldDesc } from 'Utils';
 import { pick } from 'PureUtils';
 
-import { ArrayColumn } from './column';
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
-
-type ColumnsTable = Record<string, unknown[]>
 
 export default class Table implements ITable {
   private readonly data: TableData;
@@ -19,30 +15,9 @@ export default class Table implements ITable {
   private readonly _fields: FieldDescription[];
   public readonly totalRowCount: number;
 
-  // #region static methods
-  static fromColumns(columns: ColumnsTable) {
-    const data = Object.entries(columns)
-      .reduce((acc, [key, value]) => {
-        acc[key] = ArrayColumn.from(value);
-        return acc;
-      }, {});
-
-    const fieldDescs = Object.keys(columns)
-      .map((name, idx) =>
-        makeFieldDesc(name, idx, getDataType(columns[name][0])));
-
-    const fstField = fieldDescs[0];
-    const rowCount = fstField
-      ? columns[fstField.name].length
-      : 0;
-
-    return Table.create(data, { fieldDescs, rowCount });
-  }
-
   static create(...args: ConstructorParameters<typeof Table>) {
     return new Table(...args);
   }
-  // #endregion
 
   constructor(
     data: TableData,
@@ -50,9 +25,9 @@ export default class Table implements ITable {
       fieldDescs: FieldDescription[],
       rowCount: number,
     },
-    filter?,
+    filter?: IndexSet,
     groupDesc?: GroupDescription,
-    order?
+    order?: Comparator
   ) {
     this.data = data;
 
@@ -185,7 +160,7 @@ export default class Table implements ITable {
     // });
   }
 
-  public groupBy(...names) {
+  public groupBy(...names: string[]): Table {
     return this.clone({ groupBy: getGroupDesc(names, this) });
   }
 

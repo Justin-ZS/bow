@@ -73,7 +73,7 @@
       language: 'js',
       lineNumbers: true
     });
-    exampleFlask.updateCode(`bow.Table
+    exampleFlask.updateCode(`bow.TableEx
   .fromColumns({
     value: [1, 2, 3, 4, 5],
     name: ['a', 'a', 'b', 'b', 'c'],
@@ -83,7 +83,7 @@
     exampleFlask.onUpdate((code) => {
       let expr = code.trim();
       if (expr.endsWith(';')) expr = expr.slice(0, -1);
-      const html = eval(`bow.TableEx.Output.toHTML(${expr})`);
+      const html = eval(`bow.TableEx.toHTML(${expr})`);
       document.querySelector('#example-result').innerHTML = html;
     });
   </script>
