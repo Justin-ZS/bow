@@ -1,4 +1,5 @@
 // Never import any lib here!
+// All utils should be pure function
 
 export const pick = <T = unknown>(
   names: string[],

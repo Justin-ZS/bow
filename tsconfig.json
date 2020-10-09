@@ -18,6 +18,7 @@
     "paths": {
       "PureUtils": ["src/utils/pureUtils"],
       "Typings": ["src/typings/"],
+      "CommonTypings": ["src/typings/common"],
       "Utils": ["src/utils"],
     }
   }

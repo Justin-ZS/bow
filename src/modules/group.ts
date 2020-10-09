@@ -1,9 +1,9 @@
-import { ITable } from 'Typings';
+import { ITable, Visitor } from 'Typings';
 import { makeGroupDesc } from 'Utils';
 
 export const getGroupDesc = (
-  table: ITable,
   names: string[],
+  table: ITable,
 ) => {
   if (!names?.length) return null;
 
@@ -12,7 +12,7 @@ export const getGroupDesc = (
   let size = 0;
   const map = new Map();
   const getCells = names.map(name => rowIdx => table.getCell(name, rowIdx));
-  table.traverse((rowIdx) => {
+  const visitor: Visitor = (rowIdx) => {
     const groupId = getCells
       .reduce((accMap: Map<any, any>, getVal, idx) => {
         const val = getVal(rowIdx);
@@ -29,7 +29,9 @@ export const getGroupDesc = (
         return next;
       }, map) as number;
     keys[rowIdx] = groupId;
-  });
+  };
+
+  table.traverse(visitor);
 
   return makeGroupDesc(names, keys, size);
 };

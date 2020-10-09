@@ -1,23 +1,23 @@
-import { ITable, TableData, GroupDescription, FieldDescription } from 'Typings';
+import { ITable, TableData, GroupDescription, FieldDescription, IndexSet } from 'Typings';
+import { Comparator, Predicate } from 'CommonTypings';
 import { getDataType, makeFieldDesc } from 'Utils';
 import { pick } from 'PureUtils';
 
 import { ArrayColumn } from './column';
-import { getGroupDesc } from './groupBy';
+import { getGroupDesc } from './group';
+import { getIndexSet } from './filter';
 
 type ColumnsTable = Record<string, unknown[]>
-
-type Comparator = (a, b) => number;
 
 export default class Table implements ITable {
   private readonly data: TableData;
 
-  private readonly _filterBy;
+  private readonly _filterBy: IndexSet;
   private readonly _groups: GroupDescription;
   private readonly _orderBy: Comparator;
 
   private readonly _fields: FieldDescription[];
-  public readonly totalRowCount;
+  public readonly totalRowCount: number;
 
   // #region static methods
   static fromColumns(columns: ColumnsTable) {
@@ -77,7 +77,7 @@ export default class Table implements ITable {
 
   get rowCount() {
     return this.isFiltered
-      ? this._filterBy.count()
+      ? this._filterBy.size
       : this.totalRowCount;
   }
   get colCount() {
@@ -119,6 +119,10 @@ export default class Table implements ITable {
     if (colIdx < 0 || colIdx >= this.colCount) {
       throw Error('Column index over Range!');
     }
+  }
+  private isRowVisible(rowIdx: number) {
+    if (!this.isFiltered) return true;
+    return this._filterBy.has(rowIdx);
   }
 
   public clone({ data, meta, filterBy, groupBy, orderBy }: {
@@ -182,17 +186,23 @@ export default class Table implements ITable {
   }
 
   public groupBy(...names) {
-    return this.clone({ groupBy: getGroupDesc(this, names) });
+    return this.clone({ groupBy: getGroupDesc(names, this) });
+  }
+
+  public filterBy(filterPred: Predicate) {
+    return this.clone({ filterBy: getIndexSet(filterPred, this) });
   }
 
   public traverse(fn) {
-    let idx = 0;
+    let rowIdx = 0;
     let end = this.totalRowCount;
-    const done = () => end = idx;
+    const done = () => end = rowIdx;
 
-    while (idx < end) {
-      fn(idx, this.data, done);
-      idx += 1;
+    while (rowIdx < end) {
+      if (this.isRowVisible(rowIdx)) {
+        fn(rowIdx, this.data, done);
+      }
+      rowIdx += 1;
     }
   }
 }
