@@ -1,6 +1,20 @@
 import { ITable, Visitor } from 'Typings';
 import { makeGroupDesc } from 'Utils';
 
+const extractGroupData = (prevData = [], map) => {
+  const entries = Array.from(map.entries());
+  const results = [];
+  entries.forEach(([key, nextMap]) => {
+    const curData = prevData.concat(key);
+    if (nextMap instanceof Map) {
+      return results.push(...extractGroupData(curData, nextMap));
+    } else {
+      return results.push(curData);
+    }
+  });
+    return results;
+};
+
 export const getGroupDesc = (
   names: string[],
   table: ITable,

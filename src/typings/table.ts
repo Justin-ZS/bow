@@ -58,4 +58,6 @@ export interface ITable {
   readonly fields: FieldDescription[];
   readonly totalRowCount: number;
   readonly rowCount: number;
+  readonly isGrouped: boolean;
+  readonly groups: GroupDescription;
 }

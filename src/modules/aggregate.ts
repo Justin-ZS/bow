@@ -2,6 +2,7 @@ import {
   ITable, Visitor, AggregateType, FieldDescription,
   DataType, TableData, TableMeta, AggregateDescription,
 } from 'Typings';
+import { range } from 'PureUtils';
 import { ArrayColumn } from './column';
 
 // #region aggregators
@@ -19,6 +20,10 @@ abstract class Aggregator {
 
   abstract addUp(value: unknown): Aggregator;
   abstract get value(): unknown;
+  clone(): Aggregator {
+    const Ctor = this.constructor as any;
+    return new Ctor(this.field, this,name);
+  }
 }
 
 class SumAggregator extends Aggregator {
@@ -135,18 +140,31 @@ export const getAggregatedTable = (
   table: ITable,
 ) => {
   const aggs = aggDescs.map(getAggregatorByDescription);
-  // const initOnce = once(() => aggs.forEach(agg => agg.init()));
+
+  let aggss = aggs.map(agg => [agg]);
+  if (table.isGrouped) {
+    const groups = range(0, table.groups.size);
+    aggss = aggs.map(agg => groups.map(() => agg.clone()));
+  }
 
   const visitor: Visitor = (rowIdx) => {
-    // initOnce();
-    aggs.forEach(agg => agg.addUp(table.getCell(agg.field.name, rowIdx)));
+    let groupIdx = 0;
+    if (table.isGrouped) {
+      groupIdx = table.groups.keys[rowIdx];
+    }
+    aggss.forEach(aggs => {
+      const agg = aggs[groupIdx];
+      agg.addUp(table.getCell(agg.field.name, rowIdx));
+    });
   };
   table.traverse(visitor);
 
-  const data: TableData = aggs.reduce((acc, agg) => {
-    acc[agg.name] = ArrayColumn.from([agg.value]);
-    return acc;
-  }, {});
+  const data: TableData = {};
+  aggDescs.forEach((aggDesc, idx) => {
+    const name = aggDesc.name;
+    const aggResults = aggss[idx];
+    data[name] = ArrayColumn.from(aggResults.map(agg => agg.value));
+  });
 
   const meta: TableMeta = {
     fieldDescs: aggs.map((agg, idx) => ({
@@ -156,6 +174,9 @@ export const getAggregatedTable = (
     })),
     rowCount: 1,
   };
+  if (table.isGrouped) {
+    meta.rowCount = table.groups.size;
+  }
   
   return table.create(data, meta);
 };
