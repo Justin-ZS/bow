@@ -1,5 +1,5 @@
 import { DataType } from './enums';
-import { Predicate } from './common';
+import { Predicate, Comparator } from './common';
 
 export interface IColumn<T = unknown> {
   getDatum: (index: number) => T,
@@ -22,10 +22,32 @@ export type IndexSet = Set<number>;
 
 export type TableData = Record<string, IColumn>;
 
+export type TableMeta = {
+  fieldDescs: FieldDescription[],
+  rowCount: number,
+}
+
+export type TableDescription = {
+  data?: TableData;
+  meta?: TableMeta;
+  filterBy?: IndexSet;
+  groupBy?: GroupDescription;
+  orderBy?: Comparator;
+}
+
 export type Visitor = (rowIdx: number, done: () => void) => void;
 
 export interface ITable {
   traverse: (fn: Visitor) => void;
+  clone: (tableDesc: TableDescription) => ITable;
+  create: (
+    data?: TableData,
+    meta?: TableMeta,
+    filterBy?: IndexSet,
+    groupBy?: GroupDescription,
+    orderBy?: Comparator,
+  ) => ITable;
+
   getCell: (colName: string, rowIdx: number) => unknown;
   getRowByIdx: (rowIdx: number) => unknown[];
 

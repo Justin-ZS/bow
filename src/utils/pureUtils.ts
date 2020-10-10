@@ -11,3 +11,19 @@ export const pick = <T = unknown>(
     }
     return acc;
   }, {});
+
+export const once = <T extends (...args: any) => any>(fn: T) => {
+  let isCalled = false;
+  const wrapped = (...args: Parameters<T>): ReturnType<T> => {
+    if (isCalled) return;
+
+    isCalled = true;
+    return fn(...args);
+  };
+
+  Object.defineProperty(wrapped, 'isCalled', {
+    get() { return isCalled; },
+    configurable: false,
+  });
+  return wrapped;
+};

@@ -10,7 +10,7 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 ### Develop RoadMap
 - [ ] Support Subset Rows
 - [ ] Support Column Manipulate(Extract, Summarize, ...)
-- [ ] Support Filter  
+- [x] Support Filter  
 - [ ] Support Group by  
 - [ ] Support Order
 - [ ] Support Table Join
