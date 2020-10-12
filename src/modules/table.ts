@@ -157,6 +157,7 @@ export default class Table implements ITable {
       data: columns,
       meta: {
         fieldDescs,
+        rowCount: this.totalRowCount,
       }
     });
   }

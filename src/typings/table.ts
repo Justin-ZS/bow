@@ -12,10 +12,13 @@ export type FieldDescription = {
   type: DataType;
 }
 
+type GroupMap = Map<unknown, GroupMap | unknown>
+
 export type GroupDescription = {
   names: string[], // grouped field names
   keys: number[], // mapping rowIdx to groupId
   size: number; // group count
+  map: GroupMap; // map for grouped data and groupId
 }
 
 export type IndexSet = Set<number>;
@@ -47,6 +50,7 @@ export interface ITable {
     groupBy?: GroupDescription,
     orderBy?: Comparator,
   ) => ITable;
+  getFieldDescriptionByName: (colName: string) => FieldDescription;
 
   getCell: (colName: string, rowIdx: number) => unknown;
   getRowByIdx: (rowIdx: number) => unknown[];

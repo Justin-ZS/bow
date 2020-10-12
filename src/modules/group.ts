@@ -1,19 +1,31 @@
 import { ITable, Visitor } from 'Typings';
 import { makeGroupDesc } from 'Utils';
+import { range } from 'PureUtils';
 
-const extractGroupData = (prevData = [], map) => {
+export const extractGroupedColumns = (
+  map,
+  idx = 0,
+  columns = [],
+) => {
   const entries = Array.from(map.entries());
-  const results = [];
+  if (entries.length === 0) return columns;
+
+  const column = columns[idx] = columns[idx] ?? [];
   entries.forEach(([key, nextMap]) => {
-    const curData = prevData.concat(key);
     if (nextMap instanceof Map) {
-      return results.push(...extractGroupData(curData, nextMap));
+      const nextIdx = idx + 1;
+      extractGroupedColumns(nextMap, nextIdx, columns);
+
+      const nextColumn = columns[nextIdx];
+      range(column.length, nextColumn.length)
+        .forEach(() => column.push(key));
     } else {
-      return results.push(curData);
+      column.push(key);
     }
   });
-    return results;
+  return columns;
 };
+
 
 export const getGroupDesc = (
   names: string[],
@@ -46,6 +58,5 @@ export const getGroupDesc = (
   };
 
   table.traverse(visitor);
-
-  return makeGroupDesc(names, keys, size);
+  return makeGroupDesc(names, keys, size, map);
 };

@@ -2,8 +2,11 @@ import {
   ITable, Visitor, AggregateType, FieldDescription,
   DataType, TableData, TableMeta, AggregateDescription,
 } from 'Typings';
+import { makeFieldDesc } from 'Utils';
 import { range } from 'PureUtils';
+
 import { ArrayColumn } from './column';
+import { extractGroupedColumns } from './/group';
 
 // #region aggregators
 abstract class Aggregator {
@@ -22,7 +25,7 @@ abstract class Aggregator {
   abstract get value(): unknown;
   clone(): Aggregator {
     const Ctor = this.constructor as any;
-    return new Ctor(this.field, this,name);
+    return new Ctor(this.field, this, name);
   }
 }
 
@@ -30,7 +33,7 @@ class SumAggregator extends Aggregator {
   type = AggregateType.Sum;
   dataType = DataType.Number;
   private sum: number = null;
-  
+
   addUp(value: number) {
     if (value == null) return this;
 
@@ -113,10 +116,9 @@ class AvgAggregator extends Aggregator {
     if (count === 0) return null;
     if (sum == null) return null;
 
-    return sum/count;
+    return sum / count;
   }
 }
-// #endregion
 
 const getAggregatorByDescription = (aggDesc: AggregateDescription): Aggregator => {
   switch (aggDesc.type) {
@@ -134,6 +136,75 @@ const getAggregatorByDescription = (aggDesc: AggregateDescription): Aggregator =
       throw Error(`Not Supported Aggregate Type: ${aggDesc.type}`);
   }
 };
+// #endregion
+
+const aggregateGroupedTable = (
+  aggs: Aggregator[],
+  table: ITable,
+) => {
+  const { size, keys, map, names } = table.groups;
+
+  const groups = range(0, size);
+  const aggss = aggs.map(agg => groups.map(() => agg.clone()));
+  const visitor: Visitor = (rowIdx) => {
+    aggss.forEach(aggs => {
+      const agg = aggs[keys[rowIdx]];
+      agg.addUp(table.getCell(agg.field.name, rowIdx));
+    });
+  };
+  table.traverse(visitor);
+
+  const data: TableData = {};
+  // grouped fields data
+  extractGroupedColumns(map)
+    .forEach((column, idx) => {
+      const name = names[idx];
+      data[name] = ArrayColumn.from(column);
+    });
+  // aggregated values data
+  aggs.forEach((agg, idx) => {
+    const name = agg.name;
+    const colAggs = aggss[idx];
+    data[name] = ArrayColumn.from(colAggs.map(agg => agg.value));
+  });
+
+  const fieldDescs = names.map(name => table.getFieldDescriptionByName(name));
+  const meta: TableMeta = {
+    fieldDescs: fieldDescs
+      .map((f, idx) => makeFieldDesc(f.name, idx, f.type))
+      .concat(aggs
+        .map((agg, idx) => makeFieldDesc(agg.name, fieldDescs.length + idx, agg.dataType))
+      ),
+    rowCount: size,
+  };
+
+  return table.create(data, meta);
+};
+
+const aggregateFlatTable = (
+  aggs: Aggregator[],
+  table: ITable,
+) => {
+  const visitor: Visitor = (rowIdx) => {
+    aggs.forEach(agg => {
+      agg.addUp(table.getCell(agg.field.name, rowIdx));
+    });
+  };
+  table.traverse(visitor);
+
+  const data: TableData = {};
+  aggs.forEach(agg => {
+    data[agg.name] = ArrayColumn.from([agg.value]);
+  });
+
+  const meta: TableMeta = {
+    fieldDescs: aggs
+      .map((agg, idx) => makeFieldDesc(agg.name, idx, agg.dataType)),
+    rowCount: 1,
+  };
+
+  return table.create(data, meta);
+};
 
 export const getAggregatedTable = (
   aggDescs: AggregateDescription[],
@@ -141,42 +212,8 @@ export const getAggregatedTable = (
 ) => {
   const aggs = aggDescs.map(getAggregatorByDescription);
 
-  let aggss = aggs.map(agg => [agg]);
   if (table.isGrouped) {
-    const groups = range(0, table.groups.size);
-    aggss = aggs.map(agg => groups.map(() => agg.clone()));
+    return aggregateGroupedTable(aggs, table);
   }
-
-  const visitor: Visitor = (rowIdx) => {
-    let groupIdx = 0;
-    if (table.isGrouped) {
-      groupIdx = table.groups.keys[rowIdx];
-    }
-    aggss.forEach(aggs => {
-      const agg = aggs[groupIdx];
-      agg.addUp(table.getCell(agg.field.name, rowIdx));
-    });
-  };
-  table.traverse(visitor);
-
-  const data: TableData = {};
-  aggDescs.forEach((aggDesc, idx) => {
-    const name = aggDesc.name;
-    const aggResults = aggss[idx];
-    data[name] = ArrayColumn.from(aggResults.map(agg => agg.value));
-  });
-
-  const meta: TableMeta = {
-    fieldDescs: aggs.map((agg, idx) => ({
-      name: agg.name,
-      type: agg.dataType,
-      idx,
-    })),
-    rowCount: 1,
-  };
-  if (table.isGrouped) {
-    meta.rowCount = table.groups.size;
-  }
-  
-  return table.create(data, meta);
+  return aggregateFlatTable(aggs, table);
 };

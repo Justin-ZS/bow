@@ -77,8 +77,10 @@
   .fromColumns({
     value: [1, 2, 3, 4, 5],
     name: ['a', 'a', 'b', 'b', 'c'],
+    age: [12, 12, 12, 14, 14],
   })
-  .groupBy('name');
+  .groupBy('name', 'age')
+  .rollup({ sumOfValue: 'sum(value)' });
     `);
     exampleFlask.onUpdate((code) => {
       let expr = code.trim();
