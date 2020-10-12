@@ -12,7 +12,7 @@ export type FieldDescription = {
   type: DataType;
 }
 
-type GroupMap = Map<unknown, GroupMap | unknown>
+type GroupMap = Map<unknown, GroupMap | number>
 
 export type GroupDescription = {
   names: string[], // grouped field names

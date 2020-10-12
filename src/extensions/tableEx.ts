@@ -22,6 +22,7 @@ const getTableData = (table: ITable, limit: number): unknown[][] => {
   return data;
 };
 
+// #region output table data
 const toConsole = (table: ITable, limit: number) => {
   const rowCount = getRowCount(table, limit);
 
@@ -34,8 +35,8 @@ const tableTemplate = (headers: string[], data: unknown[][], footer?: string) =>
   <thead>
     <tr>
       ${headers
-      .map(header => `<th>${header}</th>`)
-      .join('\n      ')}
+    .map(header => `<th>${header}</th>`)
+    .join('\n      ')}
     </tr>
   </thead>
   <tbody>
@@ -66,11 +67,13 @@ const toHTML = (table: ITable, limit = 0) => {
   return tableTemplate(names, data, footer);
 };
 
+// #endregion
 const outputs: Record<string, OutputTableEx> = {
   toConsole,
   toHTML,
 };
 
+// #region create table instance from difference data source
 type ColumnsTable = Record<string, unknown[]>
 
 const fromColumns = (columns: ColumnsTable) => {
@@ -92,6 +95,7 @@ const fromColumns = (columns: ColumnsTable) => {
   return Table.create(data, { fieldDescs, rowCount });
 };
 
+// #endregion
 const inputs: Record<string, InputTableEx> = {
   fromColumns,
 };
