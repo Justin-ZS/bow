@@ -5,19 +5,21 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 ### Run locally
 1. Clone this [repo](https://github.com/Justin-ZS/bow)
 1. Run `npm i`
-1. Run `npm run dev`
+1. Run `npm run server`
+1. Do whatever you like
 
 ### Develop RoadMap
-- [ ] Support Subset Rows
-- [ ] Support Column Manipulate(Extract, Summarize, ...)
+- [x] Support Basic Aggregation (Sum, Avg, Max, ...)  
 - [x] Support Filter  
-- [ ] Support Group by  
+- [x] Support Group by  
 - [ ] Support Order
+- [ ] Support Column Manipulate (Extract, Summarize, ...)
+- [ ] Support Subset Rows
+- [ ] Support Expression
 - [ ] Support Table Join
 - [ ] Support Table Reshape
 - [ ] Unit Tests
 - [ ] Performance BenchMark
-- [ ] Compatible with [Arrow](https://github.com/apache/arrow/tree/master/js)
-- [ ] Support Expression
-- [ ] Compatible with [DAX](https://docs.microsoft.com/en-us/dax/)
 - [ ] Export as SQL
+- [ ] Compatible with [Arrow](https://github.com/apache/arrow/tree/master/js)
+- [ ] Compatible with [DAX](https://docs.microsoft.com/en-us/dax/)
