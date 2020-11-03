@@ -19,7 +19,7 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 - [ ] Support Table Join
 - [ ] Support Table Reshape
 - [ ] Unit Tests
-- [ ] Performance BenchMark
+- [ ] Performance Benchmark
 - [ ] Documents
 - [ ] Export as SQL
 - [ ] Compatible with [Arrow](https://github.com/apache/arrow/tree/master/js)
