@@ -23,7 +23,7 @@ export type GroupDescription = {
 export type TableData = Record<string, IColumn>;
 
 export type TableMeta = {
-  fieldDescs: FieldDescription[],
+  fields: FieldDescription[],
   rowCount: number,
 }
 

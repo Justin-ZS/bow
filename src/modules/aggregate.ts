@@ -38,7 +38,7 @@ const aggregateGroupedTable = (
 
   const fieldDescs = names.map(name => table.getFieldDescriptionByName(name));
   const meta: TableMeta = {
-    fieldDescs: fieldDescs
+    fields: fieldDescs
       .map((f, idx) => makeFieldDesc(f.name, idx, f.type))
       .concat(aggs
         .map((agg, idx) => makeFieldDesc(agg.name, fieldDescs.length + idx, agg.dataType))
@@ -66,7 +66,7 @@ const aggregateFlatTable = (
   });
 
   const meta: TableMeta = {
-    fieldDescs: aggs
+    fields: aggs
       .map((agg, idx) => makeFieldDesc(agg.name, idx, agg.dataType)),
     rowCount: 1,
   };
