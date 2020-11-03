@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node ./scripts/server",
+    "server": "node ./scripts/server",
     "build": "esbuild ./src/index.ts --target=es6 --global-name=bow --platform=browser --loader:.ts=ts --bundle --sourcemap --outfile=dist/bow.js"
   },
   "repository": {

@@ -1,6 +1,6 @@
 import { DataType } from '../typings';
 
-export const getDataType = (value: any) => {
+export const inferDataType = (value: unknown): DataType => {
   switch (typeof value) {
     case 'string':
       return DataType.String;

@@ -1,5 +1,5 @@
 import { ITable, OutputTableEx, InputTableEx } from 'Typings';
-import { getDataType, makeFieldDesc } from 'Utils';
+import { inferDataType, makeFieldDesc } from 'Utils';
 import { Table, ArrayColumn } from 'Modules';
 
 // limit = 0 -> no limit
@@ -85,7 +85,7 @@ const fromColumns = (columns: ColumnsTable) => {
 
   const fieldDescs = Object.keys(columns)
     .map((name, idx) =>
-      makeFieldDesc(name, idx, getDataType(columns[name][0])));
+      makeFieldDesc(name, idx, inferDataType(columns[name][0])));
 
   const fstField = fieldDescs[0];
   const rowCount = fstField
