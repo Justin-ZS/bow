@@ -41,7 +41,7 @@ export type TableDescription = {
 export type Visitor = (rowIdx: number, done: () => void) => void;
 
 export interface ITable {
-  traverse: (fn: Visitor) => void;
+  traverse: (fn: Visitor, noOrder?: boolean) => void;
   clone: (tableDesc: TableDescription) => ITable;
   create: (
     data?: TableData,
@@ -53,7 +53,7 @@ export interface ITable {
   getFieldDescriptionByName: (colName: string) => FieldDescription;
 
   getCell: (colName: string, rowIdx: number) => unknown;
-  getRowByIdx: (rowIdx: number) => unknown[];
+  getRowDataByIdx: (rowIdx: number) => Record<string, unknown>;
 
   groupBy: (...names: string[]) => ITable,
   filterBy: (pred: Predicate) => ITable,

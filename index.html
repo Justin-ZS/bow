@@ -80,7 +80,8 @@
     age: [12, 12, 12, 14, 14],
   })
   .groupBy('name', 'age')
-  .rollup({ sumOfValue: 'sum(value)' });
+  .rollup({ sumOfValue: 'sum(value)' })
+  .orderBy((a, b) => b.age - a.age);
     `);
     exampleFlask.onUpdate((code) => {
       let expr = code.trim();

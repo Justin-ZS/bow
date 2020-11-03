@@ -8,16 +8,19 @@ import { pick } from 'PureUtils';
 
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
+import { getOrderedIndexes } from './order';
 import { getAggregatedTable } from './aggregate';
 
 export default class Table implements ITable {
   private readonly data: TableData;
-
+  
+  private readonly _fields: FieldDescription[];
   private readonly _filterBy: IndexSet;
   private readonly _groups: GroupDescription;
+  
   private readonly _orderBy: Comparator;
+  private _orderedIndexes: number[];
 
-  private readonly _fields: FieldDescription[];
   public readonly totalRowCount: number;
 
   static create(...args: ConstructorParameters<typeof Table>) {
@@ -73,11 +76,14 @@ export default class Table implements ITable {
   get groups() {
     return this._groups;
   }
-  get comparator() {
-    return this._orderBy;
-  }
   get fields() {
     return this._fields;
+  }
+  get indexes() {
+    if (!this.isOrdered) return;
+
+    if (this._orderedIndexes) return this._orderedIndexes;
+    return this._orderedIndexes = getOrderedIndexes(this._orderBy, this);
   }
   // #endregion
 
@@ -103,20 +109,25 @@ export default class Table implements ITable {
       throw Error('Column index over Range!');
     }
   }
-  private isRowVisible(rowIdx: number) {
-    if (!this.isFiltered) return true;
-    return this._filterBy.has(rowIdx);
-  }
 
-  public traverse(fn) {
+  public traverse(fn, noOrder = false) {
     let rowIdx = 0;
-    let end = this.totalRowCount;
-    const done = () => end = rowIdx;
+    let isDone = false;
+    const done = () => isDone = true;
+    const exec = (rowIdx) => isDone || fn(rowIdx, this.data, done);
 
-    while (rowIdx < end) {
-      if (this.isRowVisible(rowIdx)) {
-        fn(rowIdx, this.data, done);
-      }
+    if (!noOrder && this.isOrdered) {
+      this.indexes.forEach(exec);
+      return;
+    }
+
+    if (this.isFiltered) {
+      this._filterBy.forEach(exec);
+      return;
+    }
+
+    while (!isDone && rowIdx < this.totalRowCount) {
+      exec(rowIdx);
       rowIdx += 1;
     }
   }
@@ -148,6 +159,12 @@ export default class Table implements ITable {
   public getRowByIdx(rowIdx: number) {
     this.checkRowIdxOverRange(rowIdx);
     return this._fields.map(f => this.data[f.name].getDatum(rowIdx));
+  }
+  public getRowDataByIdx(rowIdx: number): Record<string, unknown> {
+    const row = this.getRowByIdx(rowIdx);
+    const data = {};
+    this.fields.forEach((f, idx) => data[f.name] = row[idx]);
+    return data;
   }
   public extractColumnsByNames(colNames: string[]) {
     const columns = pick(colNames, this.data);
@@ -181,6 +198,7 @@ export default class Table implements ITable {
   public filterBy(filterPred: Predicate) {
     return this.clone({ filterBy: getIndexSet(filterPred, this) });
   }
+  // TODO: use expression in parameters
   public summarize(aggOpts: any) {
     const isSumAgg = str => {
       const reg = /sum\((.*)\)/i;
@@ -200,6 +218,9 @@ export default class Table implements ITable {
         field: this.getFieldDescriptionByName(getFieldName(str)),
     }));
     return getAggregatedTable(aggDescs, this);
+  }
+  public orderBy(comparator: Comparator) {
+    return this.clone({ orderBy: comparator });
   }
   // #region alias
   public rollup(...args: Parameters<Table['summarize']>) {

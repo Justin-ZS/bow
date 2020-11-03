@@ -1,4 +1,4 @@
-import { ITable, IndexSet, Visitor } from 'Typings';
+import { ITable, IndexSet } from 'Typings';
 import { Predicate } from 'CommonTypings';
 
 export const getIndexSet = (
@@ -6,14 +6,10 @@ export const getIndexSet = (
   table: ITable,
 ) => {
   const filterSet: IndexSet = new Set();
-  const visitor: Visitor = (rowIdx) => {
-    const row = table.getRowByIdx(rowIdx);
-    const data = {};
-    table.fields.forEach((f, idx) => data[f.name] = row[idx]);
-
-    if (predicate(data)) filterSet.add(rowIdx);
-  };
-
-  table.traverse(visitor);
+  table.traverse((rowIdx) => {
+    if (predicate(table.getRowDataByIdx(rowIdx))) {
+      filterSet.add(rowIdx);
+    }
+  });
   return filterSet;
 };
