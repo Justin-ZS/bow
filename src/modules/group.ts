@@ -33,7 +33,7 @@ export const getGroupDesc = (
 ) => {
   if (!names?.length) return null;
 
-  const keys: number[] = Array(table.totalRowCount);
+  const keys: IndexArr = Array(table.totalRowCount);
 
   let size = 0;
   const map = new Map();

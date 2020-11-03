@@ -1,5 +1,4 @@
-import { ITable, IndexSet } from 'Typings';
-import { Predicate } from 'CommonTypings';
+import { ITable } from 'Typings';
 
 export const getIndexSet = (
   predicate: Predicate,

@@ -1,9 +1,7 @@
 import {
   ITable, TableData, GroupDescription, FieldDescription,
-  IndexSet, TableDescription, AggregateDescription,
-  AggregateType,
+  TableDescription, AggregateDescription, AggregateType,
 } from 'Typings';
-import { Comparator, Predicate } from 'CommonTypings';
 import { pick } from 'PureUtils';
 
 import { getGroupDesc } from './group';
@@ -15,11 +13,10 @@ export default class Table implements ITable {
   private readonly data: TableData;
   
   private readonly _fields: FieldDescription[];
-  private readonly _filterBy: IndexSet;
   private readonly _groups: GroupDescription;
-  
-  private readonly _orderBy: Comparator;
-  private _orderedIndexes: number[];
+
+  private readonly _visibleIndexSet: IndexSet;
+  private readonly _orderedIndexes: IndexArr;
 
   public readonly totalRowCount: number;
 
@@ -36,34 +33,34 @@ export default class Table implements ITable {
       fieldDescs: FieldDescription[],
       rowCount: number,
     },
-    filter?: IndexSet,
+    filteredSet?: IndexSet,
     groupDesc?: GroupDescription,
-    order?: Comparator
+    orderedIndexes?: IndexArr,
   ) {
     this.data = data;
 
     this._fields = meta.fieldDescs;
     this.totalRowCount = meta.rowCount;
 
-    this._filterBy = filter ?? null;
+    this._visibleIndexSet = filteredSet ?? null;
     this._groups = groupDesc ?? null;
-    this._orderBy = order ?? null;
+    this._orderedIndexes = orderedIndexes ?? null;
   }
 
   // #region getter
   get isFiltered() {
-    return !!this._filterBy;
+    return !!this._visibleIndexSet;
   }
   get isGrouped() {
     return !!this._groups;
   }
   get isOrdered() {
-    return !!this._orderBy;
+    return !!this._orderedIndexes;
   }
 
   get rowCount() {
     return this.isFiltered
-      ? this._filterBy.size
+      ? this._visibleIndexSet.size
       : this.totalRowCount;
   }
   get colCount() {
@@ -78,12 +75,6 @@ export default class Table implements ITable {
   }
   get fields() {
     return this._fields;
-  }
-  get indexes() {
-    if (!this.isOrdered) return;
-
-    if (this._orderedIndexes) return this._orderedIndexes;
-    return this._orderedIndexes = getOrderedIndexes(this._orderBy, this);
   }
   // #endregion
 
@@ -117,12 +108,12 @@ export default class Table implements ITable {
     const exec = (rowIdx) => isDone || fn(rowIdx, this.data, done);
 
     if (!noOrder && this.isOrdered) {
-      this.indexes.forEach(exec);
+      this._orderedIndexes.forEach(exec);
       return;
     }
 
     if (this.isFiltered) {
-      this._filterBy.forEach(exec);
+      this._visibleIndexSet.forEach(exec);
       return;
     }
 
@@ -138,9 +129,9 @@ export default class Table implements ITable {
         fieldDescs: meta?.fieldDescs ?? this._fields,
         rowCount: meta?.rowCount ?? this.totalRowCount,
       },
-      filterBy ?? this._filterBy,
+      filterBy ?? this._visibleIndexSet,
       groupBy ?? this._groups,
-      orderBy ?? this._orderBy
+      orderBy ?? this._orderedIndexes
     );
   }
   public getColumnByName(colName: string) {
@@ -196,6 +187,8 @@ export default class Table implements ITable {
     return this.clone({ groupBy: getGroupDesc(names, this) });
   }
   public filterBy(filterPred: Predicate) {
+    // create a new filter index set on current table
+    // as a result, we can apply multiple filters one by one
     return this.clone({ filterBy: getIndexSet(filterPred, this) });
   }
   // TODO: use expression in parameters
@@ -220,7 +213,7 @@ export default class Table implements ITable {
     return getAggregatedTable(aggDescs, this);
   }
   public orderBy(comparator: Comparator) {
-    return this.clone({ orderBy: comparator });
+    return this.clone({ orderBy: getOrderedIndexes(comparator, this) });
   }
   // #region alias
   public rollup(...args: Parameters<Table['summarize']>) {

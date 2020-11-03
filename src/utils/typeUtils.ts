@@ -2,7 +2,7 @@ import { GroupDescription, FieldDescription, DataType } from 'Typings';
 
 export const makeGroupDesc = (
   names: string[],
-  keys: number[],
+  keys: IndexArr,
   size: number,
   map: GroupDescription['map'],
 ): GroupDescription => ({ names, keys, size, map });

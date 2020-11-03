@@ -1,5 +1,4 @@
 import { ITable } from 'Typings';
-import { Comparator } from 'CommonTypings';
 
 export const getOrderedIndexes = (
   comparator: Comparator,

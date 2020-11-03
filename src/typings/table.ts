@@ -1,5 +1,4 @@
 import { DataType } from './enums';
-import { Predicate, Comparator } from './common';
 
 export interface IColumn<T = unknown> {
   getDatum: (index: number) => T,
@@ -16,12 +15,10 @@ type GroupMap = Map<unknown, GroupMap | number>
 
 export type GroupDescription = {
   names: string[], // grouped field names
-  keys: number[], // mapping rowIdx to groupId
+  keys: IndexArr, // mapping rowIdx to groupId
   size: number; // group count
   map: GroupMap; // map for grouped data and groupId
 }
-
-export type IndexSet = Set<number>;
 
 export type TableData = Record<string, IColumn>;
 
@@ -35,7 +32,7 @@ export type TableDescription = {
   meta?: TableMeta;
   filterBy?: IndexSet;
   groupBy?: GroupDescription;
-  orderBy?: Comparator;
+  orderBy?: IndexArr;
 }
 
 export type Visitor = (rowIdx: number, done: () => void) => void;
@@ -48,7 +45,7 @@ export interface ITable {
     meta?: TableMeta,
     filterBy?: IndexSet,
     groupBy?: GroupDescription,
-    orderBy?: Comparator,
+    orderBy?: IndexArr,
   ) => ITable;
   getFieldDescriptionByName: (colName: string) => FieldDescription;
 
