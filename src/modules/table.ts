@@ -231,9 +231,6 @@ export default class Table implements ITable {
     return getAggregatedTable(aggDescs, this);
   }
   // #region alias
-  public rollup(...args: Parameters<Table['summarize']>) {
-    return this.summarize(...args);
-  }
   public aggregate(...args: Parameters<Table['summarize']>) {
     return this.summarize(...args);
   }
