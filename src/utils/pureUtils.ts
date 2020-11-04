@@ -61,3 +61,14 @@ export const range = (from: number, to: number) => {
   }
   return result;
 };
+
+// (i => i + 1, { a: 1, b: 2 }) -> { a: 2, b: 3 }
+export const mapRecord = <T = unknown, V = unknown>(
+  callbackfn: (value: T, key: string) => V,
+  record: Record<string, T>,
+): Record<string, V> => Object
+  .keys(record)
+  .reduce((acc, key) => {
+    acc[key] = callbackfn(record[key], key);
+    return acc;
+  }, {});

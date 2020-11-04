@@ -2,7 +2,7 @@ import { ITable, Visitor, TableData, TableMeta, AggregateDescription } from 'Typ
 import { makeFieldDesc } from 'Utils';
 import { range } from 'PureUtils';
 
-import { ArrayColumn } from './column';
+import { ArrayColumn } from './column'; // TODO: use IColumn from parameters
 import { extractGroupedColumns } from './/group';
 import { Aggregator, getAggregatorByDescription } from './Aggregator';
 

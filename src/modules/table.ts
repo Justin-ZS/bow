@@ -9,6 +9,7 @@ import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
 import { getOrderedIndexes } from './order';
 import { getAggregatedTable } from './aggregate';
+import { getCalculatedTable } from './calculate';
 
 export default class Table implements ITable {
   private readonly data: TableData;
@@ -181,6 +182,9 @@ export default class Table implements ITable {
       meta: { fields },
     });
   }
+  public addColumnsByExpr(calcExpr: any) {
+    return getCalculatedTable(calcExpr, this);
+  }
   // #endregion
   // TODO: waiting for slice method in IColumn
   public subsetRowsByRange(rangeFrom: number, rangeTo: number) {
@@ -233,8 +237,14 @@ export default class Table implements ITable {
   public aggregate(...args: Parameters<Table['summarize']>) {
     return this.summarize(...args);
   }
-  public extract(...args: Parameters<Table['extractColumnsByNames']>) {
+  public extractColumns(...args: Parameters<Table['extractColumnsByNames']>) {
     return this.extractColumnsByNames(...args);
+  }
+  public deleteColumns(...args: Parameters<Table['removeColumnsByNames']>) {
+    return this.removeColumnsByNames(...args);
+  }
+  public addColumns(...args: Parameters<Table['addColumnsByExpr']>) {
+    return this.addColumnsByExpr(...args);
   }
   // #endregion
 }

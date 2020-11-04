@@ -83,16 +83,16 @@ const fromColumns = (columns: ColumnsTable) => {
       return acc;
     }, {});
 
-  const fieldDescs = Object.keys(columns)
+  const fields = Object.keys(columns)
     .map((name, idx) =>
       makeFieldDesc(name, idx, inferDataType(columns[name][0])));
 
-  const fstField = fieldDescs[0];
+  const fstField = fields[0];
   const rowCount = fstField
     ? columns[fstField.name].length
     : 0;
 
-  return Table.create(data, { fieldDescs, rowCount });
+  return Table.create(data, { fields, rowCount });
 };
 
 // #endregion

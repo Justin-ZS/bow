@@ -61,4 +61,5 @@ export interface ITable {
   readonly rowCount: number;
   readonly isGrouped: boolean;
   readonly groups: GroupDescription;
+  readonly columns: TableData;
 }
