@@ -1,8 +1,7 @@
-import { ITable, Visitor, TableData, TableMeta, AggregateDescription } from 'Typings';
-import { makeFieldDesc } from 'Utils';
+import { ITable, AggregateDescription } from 'Typings';
 import { range } from 'PureUtils';
+import { TableEx } from 'Extensions';
 
-import { ArrayColumn } from './column'; // TODO: use IColumn from parameters
 import { extractGroupedColumns } from './/group';
 import { Aggregator, getAggregatorByDescription } from './Aggregator';
 
@@ -14,64 +13,45 @@ const aggregateGroupedTable = (
 
   const groups = range(0, size);
   const aggss = aggs.map(agg => groups.map(() => agg.clone()));
-  const visitor: Visitor = (rowIdx) => {
+
+  table.traverse((rowIdx) => {
     aggss.forEach(aggs => {
       const agg = aggs[keys[rowIdx]];
       agg.addUp(table.getCell(agg.field.name, rowIdx));
     });
-  };
-  table.traverse(visitor);
+  });
 
-  const data: TableData = {};
+  const data = {};
   // grouped fields data
   extractGroupedColumns(map)
     .forEach((column, idx) => {
-      const name = names[idx];
-      data[name] = ArrayColumn.from(column);
+      data[names[idx]] = column;
     });
   // aggregated values data
   aggs.forEach((agg, idx) => {
-    const name = agg.name;
-    const colAggs = aggss[idx];
-    data[name] = ArrayColumn.from(colAggs.map(agg => agg.value));
+    data[agg.name] = aggss[idx].map(agg => agg.value);
   });
 
-  const fieldDescs = names.map(name => table.getFieldDescriptionByName(name));
-  const meta: TableMeta = {
-    fields: fieldDescs
-      .map((f, idx) => makeFieldDesc(f.name, idx, f.type))
-      .concat(aggs
-        .map((agg, idx) => makeFieldDesc(agg.name, fieldDescs.length + idx, agg.dataType))
-      ),
-    rowCount: size,
-  };
-
-  return table.create(data, meta);
+  return TableEx.fromColumns(data);
 };
 
 const aggregateFlatTable = (
   aggs: Aggregator[],
   table: ITable,
 ) => {
-  const visitor: Visitor = (rowIdx) => {
+  table.traverse((rowIdx) => {
     aggs.forEach(agg => {
       agg.addUp(table.getCell(agg.field.name, rowIdx));
     });
-  };
-  table.traverse(visitor);
-
-  const data: TableData = {};
-  aggs.forEach(agg => {
-    data[agg.name] = ArrayColumn.from([agg.value]);
   });
 
-  const meta: TableMeta = {
-    fields: aggs
-      .map((agg, idx) => makeFieldDesc(agg.name, idx, agg.dataType)),
-    rowCount: 1,
-  };
+  const data = aggs
+    .reduce((acc, agg) => {
+      acc[agg.name] = [agg.value];
+      return acc;
+    }, {});
 
-  return table.create(data, meta);
+  return TableEx.fromColumns(data);
 };
 
 export const getAggregatedTable = (

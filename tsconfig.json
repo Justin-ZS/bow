@@ -21,6 +21,7 @@
       "CommonTypings": ["src/typings/common"],
       "Utils": ["src/utils"],
       "Modules": ["src/modules"],
+      "Extensions": ["src/extensions"]
     }
   }
 }

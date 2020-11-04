@@ -1,4 +1,4 @@
-import { ITable, OutputTableEx, InputTableEx } from 'Typings';
+import { ITable } from 'Typings';
 import { inferDataType, makeFieldDesc } from 'Utils';
 import { Table, ArrayColumn } from 'Modules';
 
@@ -68,7 +68,7 @@ const toHTML = (table: ITable, limit = 0) => {
 };
 
 // #endregion
-const outputs: Record<string, OutputTableEx> = {
+const outputs = {
   toConsole,
   toHTML,
 };
@@ -96,7 +96,7 @@ const fromColumns = (columns: ColumnsTable) => {
 };
 
 // #endregion
-const inputs: Record<string, InputTableEx> = {
+const inputs = {
   fromColumns,
 };
 
