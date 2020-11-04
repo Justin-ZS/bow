@@ -27,13 +27,13 @@ export type TableMeta = {
   rowCount: number,
 }
 
-export type TableDescription = {
-  data?: TableData;
-  meta?: TableMeta;
-  filterBy?: IndexSet;
-  groupBy?: GroupDescription;
-  orderBy?: IndexArr;
-}
+export type TableDescription = Partial<{
+  data: TableData;
+  meta: Partial<TableMeta>;
+  filterBy: IndexSet;
+  groupBy: GroupDescription;
+  orderBy: IndexArr;
+}>
 
 export type Visitor = (rowIdx: number, done: () => void) => void;
 

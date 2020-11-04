@@ -12,7 +12,7 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 - [x] Support Basic Aggregation (Sum, Avg, Max, ...)  
 - [x] Support Filter  
 - [x] Support Group by  
-- [ ] Support Order
+- [x] Support Order
 - [ ] Support Column Manipulate (Extract, Summarize, ...)
 - [ ] Support Subset Rows
 - [ ] Support Expression

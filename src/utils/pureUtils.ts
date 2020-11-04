@@ -1,17 +1,39 @@
 // Never import any lib here!
 // All utils should be pure function
 
+const isPropertyInRecord = (prop: string, obj: Record<string, unknown>) => Object.prototype.hasOwnProperty.call(obj, prop);
+
 // (['a', 'd'], {a: 1, b: 2, c: 3, d: 4}) -> {a: 1, d: 4}
 export const pick = <T = unknown>(
   names: string[],
   obj: Record<string, T>
 ): Record<string, T> => names
   .reduce((acc, name) => {
-    if (name in obj) {
+    if (isPropertyInRecord(name, obj)) {
       acc[name] = obj[name];
     }
     return acc;
   }, {});
+
+// (['a', 'd'], {a: 1, b: 2, c: 3, d: 4}) -> {b: 2, c: 3}
+export const omit = <T = unknown>(
+  names: string[],
+  obj: Record<string, T>
+): Record<string, T> => {
+  const map = names
+    .reduce((acc, name) => {
+      acc[name] = 1;
+      return acc;
+    }, {});
+
+  return Object.keys(obj)
+    .reduce((acc, name) => {
+      if (!isPropertyInRecord(name, map)) {
+        acc[name] = obj[name];
+      }
+      return acc;
+    }, {});
+};
 
 export const once = <T extends (...args: any) => any>(fn: T) => {
   let isCalled = false;

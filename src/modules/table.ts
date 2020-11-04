@@ -2,7 +2,8 @@ import {
   ITable, TableData, GroupDescription, FieldDescription,
   TableDescription, AggregateDescription, AggregateType,
 } from 'Typings';
-import { pick } from 'PureUtils';
+import { pick, omit } from 'PureUtils';
+import { makeFieldDesc } from 'Utils';
 
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
@@ -157,18 +158,30 @@ export default class Table implements ITable {
     this.fields.forEach((f, idx) => data[f.name] = row[idx]);
     return data;
   }
-  public extractColumnsByNames(colNames: string[]) {
-    const columns = pick(colNames, this.data);
-    const fieldDescs = this.fields.filter(fd => colNames.includes(fd.name));
+  // #region manipulate columns
+  public extractColumnsByNames(...names: string[]) {
+    const fields = this.fields
+      .filter(f => names.includes(f.name))
+      .map((f, idx) => makeFieldDesc(f.name, idx, f.type));
+    const data = pick(names, this.data);
 
     return this.clone({
-      data: columns,
-      meta: {
-        fields: fieldDescs,
-        rowCount: this.totalRowCount,
-      }
+      data,
+      meta: { fields },
     });
   }
+  public removeColumnsByNames(...names: string[]) {
+    const fields = this.fields
+      .filter(f => !names.includes(f.name))
+      .map((f, idx) => makeFieldDesc(f.name, idx, f.type));
+    const data = omit(names, this.data);
+
+    return this.clone({
+      data,
+      meta: { fields },
+    });
+  }
+  // #endregion
   // TODO: waiting for slice method in IColumn
   public subsetRowsByRange(rangeFrom: number, rangeTo: number) {
     this.checkRowIdxOverRange(rangeFrom);
@@ -187,9 +200,10 @@ export default class Table implements ITable {
     return this.clone({ groupBy: getGroupDesc(names, this) });
   }
   public filterBy(filterPred: Predicate) {
-    // create a new filter index set on current table
-    // as a result, we can apply multiple filters one by one
     return this.clone({ filterBy: getIndexSet(filterPred, this) });
+  }
+  public orderBy(comparator: Comparator) {
+    return this.clone({ orderBy: getOrderedIndexes(comparator, this) });
   }
   // TODO: use expression in parameters
   public summarize(aggOpts: any) {
@@ -212,15 +226,15 @@ export default class Table implements ITable {
     }));
     return getAggregatedTable(aggDescs, this);
   }
-  public orderBy(comparator: Comparator) {
-    return this.clone({ orderBy: getOrderedIndexes(comparator, this) });
-  }
   // #region alias
   public rollup(...args: Parameters<Table['summarize']>) {
     return this.summarize(...args);
   }
   public aggregate(...args: Parameters<Table['summarize']>) {
     return this.summarize(...args);
+  }
+  public extract(...args: Parameters<Table['extractColumnsByNames']>) {
+    return this.extractColumnsByNames(...args);
   }
   // #endregion
 }
