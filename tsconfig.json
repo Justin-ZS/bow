@@ -9,7 +9,7 @@
     "module": "commonjs",
     "outDir": "../Scripts/",
     "sourceMap": true,
-    "target": "es5",
+    "target": "es6",
     "moduleResolution": "node",
     "lib": [
       "es2017",
