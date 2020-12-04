@@ -7,11 +7,11 @@ const PARSE_OPTS: acorn.Options = {
 };
 
 // Expression -> ES AST
-export const parseES = (expr: string | Function) => {
+export const parseES = (expr: string | Function): ESTree.Node => {
   if (!expr) throw Error("ParseES: Empty Expression");
   try {
-    const ast: unknown = parse(`${expr}`, PARSE_OPTS);
-    return (ast as ESTree.Program).body[0];
+    const ast: any = parse(`expr=${expr}`, PARSE_OPTS);
+    return ast.body[0].expression.right;
   } catch(err) {
     throw Error(`ParseES: ${err}`);
   }

@@ -72,3 +72,19 @@ export const mapRecord = <T = unknown, V = unknown>(
     acc[key] = callbackfn(record[key], key);
     return acc;
   }, {});
+
+// (String, Unknown) -> Record -> Boolean
+export const isFn = <T = Record<string, unknown>>(
+  prop: string,
+  values: unknown,
+) => {
+  let matchValues = v => v === values;
+  if (Array.isArray(values)) matchValues = v => values.includes(v);
+
+  return (obj: T) => {
+    if (obj && typeof obj === 'object') {
+      return matchValues(obj[prop]);
+    }
+    return false;
+  };
+};

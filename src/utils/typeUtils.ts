@@ -10,6 +10,5 @@ export const makeGroupDesc = (
 export const makeFieldDesc = (
   name: string,
   idx: number,
-  type: DataType
-): FieldDescription =>
-  ({ name, idx, type });
+  type: DataType,
+): FieldDescription => ({ name, idx, type });

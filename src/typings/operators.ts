@@ -6,3 +6,8 @@ export type AggregateDescription = {
   name: string;
   field: FieldDescription,
 }
+
+export type Operator = {
+  type: AggregateType,
+  fields: string[],
+};

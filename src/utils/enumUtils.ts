@@ -1,4 +1,5 @@
-import { DataType } from '../typings';
+import { DataType, AggregateType } from 'Typings';
+import { isFn } from './pureUtils';
 
 export const inferDataType = (value: unknown): DataType => {
   switch (typeof value) {
@@ -13,3 +14,6 @@ export const inferDataType = (value: unknown): DataType => {
   }
 };
 
+export const pred = {
+  isAggregate: isFn('type', Object.values(AggregateType)),
+};
