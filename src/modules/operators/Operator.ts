@@ -1,6 +1,6 @@
 import { Operator as IOperator } from 'Typings';
 
-export default class Operator implements IOperator {
+export class Operator implements IOperator {
   type: IOperator['type'];
   fields: IOperator['fields'];
 
@@ -15,3 +15,5 @@ export default class Operator implements IOperator {
     return JSON.stringify(this);
   }
 }
+
+export default Operator;

@@ -35,7 +35,7 @@ export const omit = <T = unknown>(
     }, {});
 };
 
-export const once = <T extends (...args: any) => any>(fn: T) => {
+export const once = <T extends (...args: any[]) => any>(fn: T) => {
   let isCalled = false;
   const wrapped = (...args: Parameters<T>): ReturnType<T> => {
     if (isCalled) return;

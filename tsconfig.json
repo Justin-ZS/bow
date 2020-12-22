@@ -6,8 +6,7 @@
     "experimentalDecorators": true,
     "skipDefaultLibCheck": true,
     "noUnusedLocals": true,
-    "module": "commonjs",
-    "outDir": "../Scripts/",
+    "module": "CommonJS",
     "sourceMap": true,
     "target": "es6",
     "moduleResolution": "node",
@@ -19,9 +18,13 @@
       "PureUtils": ["src/utils/pureUtils"],
       "Typings": ["src/typings/"],
       "CommonTypings": ["src/typings/common"],
-      "Utils": ["src/utils"],
+      "CommonUtils": ["src/utils"], // https://github.com/facebook/jest/issues/10959
       "Modules": ["src/modules"],
       "Extensions": ["src/extensions"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

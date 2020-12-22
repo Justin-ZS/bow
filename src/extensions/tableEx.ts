@@ -1,5 +1,5 @@
 import { ITable } from 'Typings';
-import { inferDataType, makeFieldDesc } from 'Utils';
+import { inferDataType, makeFieldDesc } from 'CommonUtils';
 import { Table, ArrayColumn } from 'Modules';
 
 // limit = 0 -> no limit

@@ -3,7 +3,7 @@ import {
   TableDescription, AggregateDescription, AggregateType,
 } from 'Typings';
 import { pick, omit } from 'PureUtils';
-import { makeFieldDesc } from 'Utils';
+import { makeFieldDesc } from 'CommonUtils';
 
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';

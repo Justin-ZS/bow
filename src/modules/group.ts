@@ -1,5 +1,5 @@
 import { ITable, Visitor } from 'Typings';
-import { makeGroupDesc } from 'Utils';
+import { makeGroupDesc } from 'CommonUtils';
 import { range } from 'PureUtils';
 
 export const extractGroupedColumns = (
