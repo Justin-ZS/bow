@@ -1,4 +1,3 @@
-import { AggregateType } from 'Typings';
 import * as op from '../../src/modules/operators';
 import exprResolver from '../../src/expression';
 
@@ -15,6 +14,6 @@ describe('Operator', () => {
     const resolved = exprResolver(expr);
     expect(resolved).toBeInstanceOf(Function);
     expect(resolved).not.toEqual(expr);
-    expect(`${resolved}`).toEqual("t => op.sum(t['price'])");
+    expect(`${resolved}`).toEqual("(t, op) => op.sum(t['price'])");
   });
 });

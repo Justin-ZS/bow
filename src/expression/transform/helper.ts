@@ -29,11 +29,11 @@ const isOpFieldsProp = (prop: ESTree.Property) => (
 export const predAST = {
   isOperator: (node: ESTree.Node) => {
     if (node.type !== ExpressionType.Object) return false;
-  
+
     const objExpr = node as ESTree.ObjectExpression;
     if (objExpr.properties.length !== 2) return false;
     if (objExpr.properties.some(isSpreadElement)) return false;
-  
+
     const [typeProp, fieldsProp] = objExpr.properties as ESTree.Property[];
     return isOpTypeProp(typeProp) && isOpFieldsProp(fieldsProp);
   },
@@ -66,16 +66,21 @@ const makeMemberExpr = (objName: string, propName: string, computed: boolean): E
   optional: false,
 }) as any;
 
-// t => op.sum(t['fields'])
+// (t, op) => op.sum(t['fields'])
 export const makeOpExpr = (op: Operator, tableName = 't', opName = 'op'): ESTree.ArrowFunctionExpression => ({
   type: ExpressionType.ArrowFunction,
   expression: true,
   generator: false,
   async: false,
-  params: [{
-    type: SimpleType.Identifier,
-    name: tableName,
-  }],
+  params: [
+    {
+      type: SimpleType.Identifier,
+      name: tableName,
+    },
+    {
+      type: SimpleType.Identifier,
+      name: opName,
+    }],
   body: {
     type: ExpressionType.Call,
     callee: makeMemberExpr(opName, op.type, false),

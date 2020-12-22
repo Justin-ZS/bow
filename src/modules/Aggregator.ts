@@ -7,7 +7,7 @@ export abstract class Aggregator {
   type: AggregateType;
   dataType = DataType.Null;
 
-  constructor(targetField: FieldDescription, name: string) {
+  constructor(targetField: FieldDescription, name?: string) {
     this.field = targetField;
     this.name = name;
   }
@@ -15,6 +15,9 @@ export abstract class Aggregator {
   abstract addUp(value: unknown): Aggregator;
   abstract get value(): unknown;
 
+  isAnonymous() {
+    return name === undefined;
+  }
   clone(): Aggregator {
     const Ctor = this.constructor as any;
     return new Ctor(this.field, this, name);

@@ -3,7 +3,7 @@ import { FieldDescription } from './table';
 
 export type AggregateDescription = {
   type: AggregateType,
-  name: string;
+  name?: string;
   field: FieldDescription,
 }
 
