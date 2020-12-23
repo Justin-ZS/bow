@@ -1,14 +1,15 @@
 import {
-  ITable, TableData, GroupDescription, FieldDescription,
-  TableDescription, AggregateDescription, AggregateType,
+  ITable, TableData, GroupDescription,
+  FieldDescription, TableDescription,
 } from 'Typings';
-import { pick, omit } from 'PureUtils';
+import { pick, omit, list2Record } from 'PureUtils';
 import { makeFieldDesc } from 'CommonUtils';
 
+import exprResolver from '../expression';
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
 import { getOrderedIndexes } from './order';
-import { getAggregatedTable } from './aggregate';
+import { getAggregatedTable, aggOps } from './aggregate';
 import { getCalculatedTable } from './calculate';
 
 export default class Table implements ITable {
@@ -211,23 +212,11 @@ export default class Table implements ITable {
   }
   // TODO: use expression in parameters
   public summarize(aggOpts: any) {
-    const isSumAgg = str => {
-      const reg = /sum\((.*)\)/i;
-      const result = reg.exec(str);
+    const expr = exprResolver(aggOpts);
+    const t = list2Record(this.fields, 'name');
 
-      if (!result) return false;
-      if (result[1] === '') return false;
-      return true;
-    };
-    const getFieldName = str => /sum\((.*)\)/i.exec(str)[1];
-
-    const aggDescs: AggregateDescription[] = Object.entries(aggOpts)
-      .filter(([_, str]) => isSumAgg(str))
-      .map(([name, str]) => ({
-        name,
-        type: AggregateType.Sum,
-        field: this.getFieldDescriptionByName(getFieldName(str)),
-    }));
+    const aggDescs = Object.entries(expr)
+      .map(([name, fn]) => ({ name, ...(fn as any)(t, aggOps) }));
     return getAggregatedTable(aggDescs, this);
   }
   // #region alias

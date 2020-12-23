@@ -1,6 +1,7 @@
 // Never import any lib here!
 // All utils should be pure function
 
+const isRecord = (x: unknown) => x && typeof x === 'object' && !Array.isArray(x);
 const isPropertyInRecord = (prop: string, obj: Record<string, unknown>) => Object.prototype.hasOwnProperty.call(obj, prop);
 
 // (['a', 'd'], {a: 1, b: 2, c: 3, d: 4}) -> {a: 1, d: 4}
@@ -88,3 +89,17 @@ export const isFn = <T = Record<string, unknown>>(
     return false;
   };
 };
+// [1, 2, 3] -> { 1: 1, 2: 2, 3: 3 }
+// [{ key: 'A' }, { key: 'B' }] -> { A: { key: 'A' }, B: { key: 'B' } }
+export const list2Record = (xs: any[], keyName = 'key') => xs
+  .reduce((record, x, idx) => {
+    if (!isRecord(x)) record[idx] = x;
+    else record[x[keyName] ?? idx] = x;
+    return record;
+  }, {});
+
+export const lens = (getter = i => i, setter) => ({
+  view: getter,
+  set: setter,
+  over: (fn, obj) => setter(fn(getter(obj)), obj),
+});

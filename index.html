@@ -80,7 +80,7 @@
     age: [12, 12, 12, 14, 14],
   })
   .groupBy('name', 'age')
-  .summarize({ sumOfValue: 'sum(value)' })
+  .summarize({ sumOfValue: bow.Op.sum('value') })
   .orderBy((a, b) => b.age - a.age)
   .addColumns({
     added: ({ age, sumOfValue }) => age + sumOfValue

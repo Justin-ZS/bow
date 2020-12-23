@@ -5,7 +5,7 @@ Inspired by [dplyr](https://dplyr.tidyverse.org/) and [Arquero](https://github.c
 ### Run locally
 1. Clone this [repo](https://github.com/Justin-ZS/bow)
 1. Run `npm i`
-1. Run `npm run server`
+1. Run `npm start`
 1. Do whatever you like
 
 ### Develop RoadMap
