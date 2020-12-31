@@ -2,10 +2,10 @@ import {
   ITable, TableData, GroupDescription,
   FieldDescription, TableDescription,
 } from 'Typings';
-import { pick, omit, list2Record } from 'PureUtils';
+import { pick, omit, list2Record, mapRecord } from 'PureUtils';
 import { makeFieldDesc } from 'CommonUtils';
 
-import exprResolver from '../expression';
+import { resolveExpr } from './expression';
 import { getGroupDesc } from './group';
 import { getIndexSet } from './filter';
 import { getOrderedIndexes } from './order';
@@ -210,14 +210,13 @@ export default class Table implements ITable {
   public orderBy(comparator: Comparator) {
     return this.clone({ orderBy: getOrderedIndexes(comparator, this) });
   }
-  // TODO: use expression in parameters
   public summarize(aggOpts: any) {
-    const expr = exprResolver(aggOpts);
+    // TODO: parameter validation
+    const { ops, getter } = resolveExpr(aggOpts);
     const t = list2Record(this.fields, 'name');
 
-    const aggDescs = Object.entries(expr)
-      .map(([name, fn]) => ({ name, ...(fn as any)(t, aggOps) }));
-    return getAggregatedTable(aggDescs, this);
+    const aggDescs = mapRecord(fn => fn(t, aggOps), ops);
+    return getAggregatedTable(aggDescs as any, getter, this);
   }
   // #region alias
   public aggregate(...args: Parameters<Table['summarize']>) {

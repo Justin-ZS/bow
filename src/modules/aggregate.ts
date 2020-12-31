@@ -3,7 +3,7 @@ import { range, mapRecord } from 'PureUtils';
 import { TableEx } from 'Extensions';
 
 import { extractGroupedColumns } from './group';
-import { Aggregator, aggMapping  } from './Aggregator';
+import { Aggregator, aggMapping } from './Aggregator';
 
 export type AggregatorDescription = {
   name?: string,
@@ -12,22 +12,22 @@ export type AggregatorDescription = {
 }
 
 const aggregateGroupedTable = (
-  descs: AggregatorDescription[],
+  descs: Record<string, AggregatorDescription>,
+  getValues: Function,
   table: ITable,
 ) => {
   const { size, keys, map, names } = table.groups;
 
   const groups = range(0, size);
-  const descss: AggregatorDescription[][] = descs
-    .map(desc => groups
-      .map(() => ({
-        ...desc,
-        agg: desc.agg.clone(),
-      })));
+  const descNames = Object.keys(descs);
+
+  const descss: Record<string, AggregatorDescription[]> = mapRecord(
+    desc => groups.map(() =>
+      ({ ...desc, agg: desc.agg.clone() })), descs);
 
   table.traverse((rowIdx) => {
-    descss.forEach(descs => {
-      const desc = descs[keys[rowIdx]];
+    descNames.forEach(name => {
+      const desc = descss[name][keys[rowIdx]];
       desc.agg.addUp(desc.getterFn(rowIdx, table));
     });
   });
@@ -35,44 +35,49 @@ const aggregateGroupedTable = (
   const data = {};
   // grouped fields data
   extractGroupedColumns(map)
-    .forEach((column, idx) => {
-      data[names[idx]] = column;
-    });
+    .forEach((column, idx) => data[names[idx]] = column);
   // aggregated values data
-  descs.forEach((desc, idx) => {
-    data[desc.name] = descss[idx].map(({ agg }) => agg.value);
+  groups.forEach((idx) => {
+    const opResults = mapRecord(descList => descList[idx].agg.value, descss);
+    const values = getValues(opResults);
+    mapRecord((value, name) => {
+      data[name] = data[name] ?? [];
+      data[name].push(value);
+    }, values);
   });
 
   return TableEx.fromColumns(data);
 };
 
 const aggregateFlatTable = (
-  descs: AggregatorDescription[],
+  descs: Record<string, AggregatorDescription>,
+  getValues: Function,
   table: ITable,
 ) => {
+  const descList = Object.values(descs);
+
   table.traverse((rowIdx) => {
-    descs.forEach(desc => {
+    descList.forEach(desc => {
       desc.agg.addUp(desc.getterFn(rowIdx, table));
     });
   });
 
-  const data = descs
-    .reduce((acc, { name, agg }) => {
-      acc[name] = [agg.value];
-      return acc;
-    }, {});
+  const opResults = mapRecord(desc => desc.agg.value, descs);
+  const fulfilled = getValues(opResults);
+  const data = mapRecord(v => [v], fulfilled);
 
   return TableEx.fromColumns(data);
 };
 
 export const getAggregatedTable = (
-  aggDescs: AggregatorDescription[],
+  aggDescs: Record<string, AggregatorDescription>,
+  getValues: Function,
   table: ITable,
 ) => {
   if (table.isGrouped) {
-    return aggregateGroupedTable(aggDescs, table);
+    return aggregateGroupedTable(aggDescs, getValues, table);
   }
-  return aggregateFlatTable(aggDescs, table);
+  return aggregateFlatTable(aggDescs, getValues, table);
 };
 
 const fields2GetterFn = (fields: FieldDescription[]) =>

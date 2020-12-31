@@ -1,33 +1,5 @@
-import * as ESTree from 'estree';
+import { ExpressionType, Transformers, SimpleType } from './constant';
 
-export enum ExpressionType {
-  // es5 https://github.com/estree/estree/blob/master/es5.md
-  Array = 'ArrayExpression',
-  Object = 'ObjectExpression',
-  Function = 'FunctionExpression',
-  Unary = 'UnaryExpression',
-  Update = 'UpdateExpression',
-  Binary = 'BinaryExpression',
-  Assignment = 'AssignmentExpression',
-  Logical = 'LogicalExpression',
-  Member = 'MemberExpression',
-  Conditional = 'ConditionalExpression',
-  Call = 'CallExpression',
-  New = 'NewExpression',
-  Sequence = 'SequenceExpression',
-  // es2015 https://github.com/estree/estree/blob/master/es2015.md
-  ArrowFunction = 'ArrowFunctionExpression',
-}
-
-export type RecursiveTransformer<T = unknown> = (
-  node: ESTree.Node,
-  state: T,
-  t: RecursiveTransformer<T>,
-) => ESTree.Node;
-
-export type Transformers<T = unknown> = {
-  [type: string]: RecursiveTransformer<T>
-};
 //#region base transformers
 const listT = (nodes, state, t) => {
   let isChanged = false;
@@ -71,10 +43,11 @@ const list = propT('elements');
 
 const ignore = node => node;
 
+// TODO: support more syntax
 const transformers: Transformers = {
-  'Identifier': ignore,
-  'Literal': ignore,
-  'Property': ifElseT(node => node.computed, propsT('key', 'value'), propT('value')),
+  [SimpleType.Identifier]: ignore,
+  [SimpleType.Literal]: ignore,
+  [SimpleType.Property]: ifElseT(node => node.computed, propsT('key', 'value'), propT('value')),
 
   'TemplateElement': ignore,
   'TemplateLiteral': propsT('expressions', 'elements'),

@@ -1,19 +1,19 @@
 import * as op from '../../src/modules/operators';
-import exprResolver from '../../src/expression';
+import { resolveExpr } from '../../src/modules/expression';
 
 describe('Operator', () => {
   it('Flow', () => {
     const expr = i => i;
-    const resolved = exprResolver(expr);
-    expect(resolved).toBeInstanceOf(Function);
-    expect(resolved).not.toEqual(expr);
-    expect(resolved(1)).toEqual(1);
+    const { ops, getter } = resolveExpr(expr);
+    expect(ops).toEqual({});
+    expect(getter()).not.toEqual(expr);
+    expect(getter()(1)).toEqual(1);
   });
   it("SUM", () => {
     const expr = op.sum('price');
-    const resolved = exprResolver(expr);
-    expect(resolved).toBeInstanceOf(Function);
-    expect(resolved).not.toEqual(expr);
-    expect(`${resolved}`).toEqual("(t, op) => op.sum(t['price'])");
+    const { ops, getter } = resolveExpr(expr);
+
+    expect(Object.keys(ops).length).toBe(1);
+    expect(getter({ "(t, op) => op.sum(t['price'])": 1 })).toBe(1);
   });
 });

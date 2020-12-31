@@ -1,7 +1,9 @@
 // Never import any lib here!
 // All utils should be pure function
 
-const isRecord = (x: unknown) => x && typeof x === 'object' && !Array.isArray(x);
+export const isFunction = (x: unknown) => x && typeof x === 'function';
+export const isRecord = (x: unknown) => x && typeof x === 'object' && !Array.isArray(x);
+export const isArray = (x: unknown) => Array.isArray(x);
 const isPropertyInRecord = (prop: string, obj: Record<string, unknown>) => Object.prototype.hasOwnProperty.call(obj, prop);
 
 // (['a', 'd'], {a: 1, b: 2, c: 3, d: 4}) -> {a: 1, d: 4}
@@ -103,3 +105,5 @@ export const lens = (getter = i => i, setter) => ({
   set: setter,
   over: (fn, obj) => setter(fn(getter(obj)), obj),
 });
+
+export const instantiate = (esCode: string, ...args: string[]) => Function(...args, `return ${esCode}`);

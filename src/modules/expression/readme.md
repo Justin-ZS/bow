@@ -23,17 +23,19 @@
     {
       SumOfPrice: (t, op) => op.sum(t['Price'])
     }
-    // transform
+    // collect ops
     {
       "(t, op) => op.sum(t['Price'])": (t, op) => op.sum(t['Price'])
     }
-    {
-      SumOfPrice: ops => ops["(t, op) => op.sum(t['Price'])"]
-    }
+    ops => ({
+      SumOfPrice: ops["(t, op) => op.sum(t['Price'])"]
+    })
     // evaluate
-    {
+    (ops => ({
+      SumOfPrice: ops["(t, op) => op.sum(t['Price'])"]
+    }))({
       "(t, op) => op.sum(t['Price'])": 1500
-    }
+    })
     // result
     {
       SumOfPrice: 1500
@@ -70,36 +72,27 @@
         right: 0.8
       }
     }
-    // transform
-    { // ops
+    // collect ops
+    {
       "(t, op) => op.sum(t['Price'])": (t, op) => op.sum(t['Price'])
     }
-    {
-      SumOfPrice: {
-        type: 'multiplication',
-        left: ops => ops["(t, op) => op.sum(t['Price'])"],
-        right: 0.8
-      }
-    }
+    ops => ({
+      SumOfPrice: ops["(t, op) => op.sum(t['Price'])"] * 0.8
+    });
+    
     // evaluate
-    { // ops
+    {
       "(t, op) => op.sum(t['Price'])": {
         agg: SumAggregator,
         getter: row => row['Price']
       }
     }
     // evaluate
-    { // ops
+    (ops => ({
+      SumOfPrice: ops["(t, op) => op.sum(t['Price'])"] * 0.8
+    }))({
       "(t, op) => op.sum(t['Price'])": 1500
-    }
-    // evaluate
-    {
-      SumOfPrice: {
-        type: 'multiplication',
-        left: 1500,
-        right: 0.8
-      }
-    }
+    })
     // transform
     {
       SumOfPrice: 1500 * 0.8

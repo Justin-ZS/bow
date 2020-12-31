@@ -1,16 +1,11 @@
 import * as ESTree from 'estree';
+import { generate } from 'escodegen';
+
 import { pred } from 'CommonUtils';
 import { Operator } from 'Typings';
 import { isFn } from 'PureUtils';
-import { ExpressionType } from './base';
 
-enum SimpleType {
-  Literal = 'Literal',
-  Identifier = 'Identifier',
-}
-enum ElementType {
-  Spread = 'Spread',
-}
+import { ExpressionType, ElementType, SimpleType } from './constant';
 
 const isSpreadElement = isFn<ESTree.Node>('type', ElementType.Spread);
 const isLiteral = isFn<ESTree.Node>('type', SimpleType.Literal);
@@ -46,7 +41,7 @@ export const fromAST = {
   }),
 };
 
-const makeMemberExpr = (objName: string, propName: string, computed: boolean): ESTree.MemberExpression => ({
+export const makeMemberExpr = (objName: string, propName: string, computed: boolean): ESTree.MemberExpression => ({
   type: ExpressionType.Member,
   object: {
     type: SimpleType.Identifier,
@@ -87,3 +82,9 @@ export const makeOpExpr = (op: Operator, tableName = 't', opName = 'op'): ESTree
     arguments: op.fields.map(field => makeMemberExpr(tableName, field, true))
   }
 }) as any;
+
+export const makeOpMember = (
+  objName: string,
+  ...args: Parameters<typeof makeOpExpr>
+): ESTree.MemberExpression =>
+  makeMemberExpr(objName, generate(makeOpExpr(...args)), true);
