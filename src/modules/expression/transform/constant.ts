@@ -39,6 +39,7 @@ export type Transformers<T = unknown> = {
 };
 
 export const state = {
-  operatorResultProvider: '_ops',
+  operatorResults: '_ops',
   operatorCollection: {},
+  operatorName: 'op',
 };

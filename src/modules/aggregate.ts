@@ -23,7 +23,8 @@ const aggregateGroupedTable = (
 
   const descss: Record<string, AggregatorDescription[]> = mapRecord(
     desc => groups.map(() =>
-      ({ ...desc, agg: desc.agg.clone() })), descs);
+      ({ ...desc, agg: desc.agg.clone() })),
+    descs);
 
   table.traverse((rowIdx) => {
     descNames.forEach(name => {

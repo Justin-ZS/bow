@@ -7,7 +7,15 @@ export type AggregateDescription = {
   field: FieldDescription,
 }
 
-export type Operator = {
+export type BinaryOp = {
+  type: '+' | '-' | '*' | '/' | '%' | '**',
+  left: any,
+  right: any,
+}
+
+export type AggregateOp = {
   type: AggregateType,
   fields: string[],
 };
+
+export type Operator = AggregateOp | BinaryOp;

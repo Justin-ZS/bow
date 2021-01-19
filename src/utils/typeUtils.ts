@@ -1,4 +1,4 @@
-import { GroupDescription, FieldDescription, DataType, Operator } from 'Typings';
+import { GroupDescription, FieldDescription, DataType } from 'Typings';
 
 export const makeGroupDesc = (
   names: string[],
@@ -12,8 +12,3 @@ export const makeFieldDesc = (
   idx: number,
   type: DataType,
 ): FieldDescription => ({ name, idx, type });
-
-export const makeOperator = (type: Operator['type'], ...fields: Operator['fields']): Operator => ({
-  type,
-  fields,
-});

@@ -12,7 +12,7 @@ export const resolveExpr = (expr: any) => {
 
   const ops: Record<string, Function> = {};
   const esStr = generateES(transformAST(esAST, { operatorCollection: ops }));
-  const getter = instantiate(esStr, state.operatorResultProvider);
+  const getter = instantiate(esStr, state.operatorResults);
 
   return { ops, getter };
 };

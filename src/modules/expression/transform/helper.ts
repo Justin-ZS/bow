@@ -2,7 +2,7 @@ import * as ESTree from 'estree';
 import { generate } from 'escodegen';
 
 import { pred } from 'CommonUtils';
-import { Operator } from 'Typings';
+import { AggregateOp } from 'Typings';
 import { isFn } from 'PureUtils';
 
 import { ExpressionType, ElementType, SimpleType } from './constant';
@@ -35,7 +35,7 @@ export const predAST = {
 };
 
 export const fromAST = {
-  operator: (node: any): Operator => ({
+  operator: (node: any): AggregateOp => ({
     type: node.properties[0].value.value,
     fields: node.properties[1].value.elements.map(e => e.value),
   }),
@@ -62,7 +62,7 @@ export const makeMemberExpr = (objName: string, propName: string, computed: bool
 }) as any;
 
 // (t, op) => op.sum(t['fields'])
-export const makeOpExpr = (op: Operator, tableName = 't', opName = 'op'): ESTree.ArrowFunctionExpression => ({
+export const makeOpExpr = (op: AggregateOp, tableName = 't', opName = 'op'): ESTree.ArrowFunctionExpression => ({
   type: ExpressionType.ArrowFunction,
   expression: true,
   generator: false,

@@ -106,4 +106,5 @@ export const lens = (getter = i => i, setter) => ({
   over: (fn, obj) => setter(fn(getter(obj)), obj),
 });
 
+// get a function to exec string code
 export const instantiate = (esCode: string, ...args: string[]) => Function(...args, `return ${esCode}`);
