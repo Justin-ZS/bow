@@ -2,7 +2,6 @@ module.exports = {
   rootDir: '.',
   verbose: true,
   transform: {
-    // "^.+\\.(ts)$": '<rootDir>/test/fileTransformer.js'
     "^.+\\.(ts)$": 'ts-jest'
   },
   testEnvironment: 'node',
