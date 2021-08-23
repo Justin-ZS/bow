@@ -14,7 +14,7 @@ import { getCalculatedTable } from './calculate';
 
 export default class Table implements ITable {
   private readonly data: TableData;
-  
+
   private readonly _fieldDescs: FieldDescription[];
   private readonly _groupDescs: GroupDescription;
 
@@ -23,9 +23,8 @@ export default class Table implements ITable {
 
   public readonly totalRowCount: number;
 
-  static create(...args: ConstructorParameters<typeof Table>) {
-    return new Table(...args);
-  }
+  static create = (...args: ConstructorParameters<typeof Table>) => new Table(...args);
+
   create(...args: ConstructorParameters<typeof Table>) {
     return new Table(...args);
   }
@@ -103,12 +102,22 @@ export default class Table implements ITable {
       throw Error('Column index over Range!');
     }
   }
+  
+  private isRowVisible(rowIdx: number) {
+    if (!this.isFiltered) return true;
+    return this._visibleIndexSet.has(rowIdx);
+  }
 
   public traverse(fn, noOrder = false) {
-    let rowIdx = 0;
     let isDone = false;
     const done = () => isDone = true;
-    const exec = (rowIdx) => isDone || fn(rowIdx, this.data, done);
+
+    let rowIdx = 0;
+    const exec = (rowIdx: number) => {
+      if (isDone) return;
+      if (!this.isRowVisible(rowIdx)) return;
+      fn(rowIdx, done);
+    };
 
     if (!noOrder && this.isOrdered) {
       this._orderedIndexes.forEach(exec);

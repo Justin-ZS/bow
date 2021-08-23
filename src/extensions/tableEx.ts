@@ -12,12 +12,15 @@ const getRowCount = (table: ITable, limit = 0) => {
 const getTableData = (table: ITable, limit: number): unknown[][] => {
   const names = table.fields.map(f => f.name);
   const data = [];
+  let cnt = 0;
   table.traverse((rowIdx, done) => {
     data.push(names.reduce((acc, name) => {
       acc[name] = table.getCell(name, rowIdx);
       return acc;
     }, []));
-    if (rowIdx >= limit) done();
+
+    cnt += 1;
+    if (cnt >= limit) done();
   });
   return data;
 };

@@ -4,7 +4,7 @@ export const getOrderedIndexes = (
   comparator: Comparator,
   table: ITable,
 ) => {
-  const indexes = [];
+  const indexes: IndexArr = [];
   table.traverse(rowIdx => indexes.push(rowIdx), true);
 
   const dataMap = new Map();
