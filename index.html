@@ -78,11 +78,13 @@
     value: [1, 2, 3, 4, 5],
     name: ['a', 'a', 'b', 'b', 'c'],
     age: [12, 12, 12, 14, 14],
-  })
+  }, { debug: true })
   .groupBy('name', 'age')
-  .summarize({ sumOfValue: bow.Op.sum('value') })
+  .summarize({
+    sumOfValue: bow.Op.sum('value')
+  })
   .orderBy((a, b) => b.age - a.age)
-  .addColumns({
+  .derive({
     added: ({ age, sumOfValue }) => age + sumOfValue
   });
     `);

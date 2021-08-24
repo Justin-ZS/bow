@@ -62,4 +62,6 @@ export interface ITable {
   readonly isGrouped: boolean;
   readonly groups: GroupDescription;
   readonly columns: TableData;
+  // debug
+  debug: boolean;
 }

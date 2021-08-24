@@ -47,7 +47,7 @@ const aggregateGroupedTable = (
     }, values);
   });
 
-  return TableEx.fromColumns(data);
+  return data;
 };
 
 const aggregateFlatTable = (
@@ -65,9 +65,7 @@ const aggregateFlatTable = (
 
   const opResults = mapRecord(desc => desc.agg.value, descs);
   const fulfilled = getValues(opResults);
-  const data = mapRecord(v => [v], fulfilled);
-
-  return TableEx.fromColumns(data);
+  return mapRecord(v => [v], fulfilled);
 };
 
 export const getAggregatedTable = (
@@ -75,17 +73,20 @@ export const getAggregatedTable = (
   getValues: Function,
   table: ITable,
 ) => {
-  if (table.isGrouped) {
-    return aggregateGroupedTable(aggDescs, getValues, table);
-  }
-  return aggregateFlatTable(aggDescs, getValues, table);
+  let data;
+
+  if (table.isGrouped) data = aggregateGroupedTable(aggDescs, getValues, table);
+  else data = aggregateFlatTable(aggDescs, getValues, table);
+
+  return TableEx.fromColumns(data);
 };
 
 const fields2GetterFn = (fields: FieldDescription[]) =>
   (rowIdx: number, table: ITable) =>
-    () => (fields.length === 1
-      ? table.getCell(fields[0].name, rowIdx)
-      : fields.map(({ name }) => table.getCell(name, rowIdx)));
+    () => (
+      fields.length === 1
+        ? table.getCell(fields[0].name, rowIdx)
+        : fields.map(({ name }) => table.getCell(name, rowIdx)));
 
 export const aggOps = mapRecord((Agg) =>
   (...fields: FieldDescription[]): AggregatorDescription => ({

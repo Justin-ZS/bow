@@ -79,7 +79,7 @@ const outputs = {
 // #region create table instance from difference data source
 type ColumnsTable = Record<string, unknown[]>
 
-const fromColumns = (columns: ColumnsTable) => {
+const fromColumns = (columns: ColumnsTable, { debug = false } = {}) => {
   const data = Object.entries(columns)
     .reduce((acc, [key, value]) => {
       acc[key] = ArrayColumn.from(value);
@@ -95,7 +95,13 @@ const fromColumns = (columns: ColumnsTable) => {
     ? columns[fstField.name].length
     : 0;
 
-  return Table.create(data, { fields, rowCount });
+  const table = Table.create(data, { fields, rowCount });
+  if (debug) {
+    console.log('========== Debug Info ==========');
+    console.log('Table:', table);
+    table.debug = true;
+  }
+  return table;
 };
 
 // #endregion

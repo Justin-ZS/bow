@@ -5,14 +5,20 @@ import validateAST from './validate';
 import transformAST, { state } from './transform';
 import generateES from './generate';
 
-export const resolveExpr = (expr: any) => {
+export const resolveExpr = (expr: any, { debug = false } = {}) => {
   const esAST = parseES(expr);
 
   validateAST(esAST);
 
   const ops: Record<string, Function> = {};
-  const esStr = generateES(transformAST(esAST, { operatorCollection: ops }));
-  const getter = instantiate(esStr, state.operatorResults);
+  const transformedAST = transformAST(esAST, { operatorCollection: ops });
+  if (debug) console.log('Operator Collection:', ops);
+  if (debug) console.log('Transformed AST:', transformedAST);
+
+  const esStr = generateES(transformedAST);
+  if (debug) console.log('Generated Code:', esStr);
+
+  const getter = instantiate(esStr, state.operatorResults);  
 
   return { ops, getter };
 };

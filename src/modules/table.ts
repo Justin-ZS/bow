@@ -22,6 +22,7 @@ export default class Table implements ITable {
   private readonly _orderedIndexes: IndexArr;
 
   public readonly totalRowCount: number;
+  public debug = false;
 
   static create = (...args: ConstructorParameters<typeof Table>) => new Table(...args);
 
@@ -102,7 +103,7 @@ export default class Table implements ITable {
       throw Error('Column index over Range!');
     }
   }
-  
+
   private isRowVisible(rowIdx: number) {
     if (!this.isFiltered) return true;
     return this._visibleIndexSet.has(rowIdx);
@@ -135,16 +136,21 @@ export default class Table implements ITable {
     }
   }
   public clone({ data, meta, filterBy, groupBy, orderBy }: TableDescription) {
-    return Table.create(
+    const newMeta = {
+      fields: meta?.fields ?? this._fieldDescs,
+      rowCount: meta?.rowCount ?? this.totalRowCount,
+    };
+    const cloned = Table.create(
       data ?? this.data,
-      {
-        fields: meta?.fields ?? this._fieldDescs,
-        rowCount: meta?.rowCount ?? this.totalRowCount,
-      },
+      newMeta,
       filterBy ?? this._visibleIndexSet,
       groupBy ?? this._groupDescs,
       orderBy ?? this._orderedIndexes
     );
+
+    cloned.debug = this.debug;
+
+    return cloned;
   }
   public getColumnByName(colName: string) {
     return this.data[colName];
@@ -192,8 +198,10 @@ export default class Table implements ITable {
       meta: { fields },
     });
   }
-  public addColumnsByExpr(calcExpr: any) {
-    return getCalculatedTable(calcExpr, this);
+  public derive(calcExpr: any) {
+    const newTable = getCalculatedTable(calcExpr, this);
+    newTable.debug = this.debug;
+    return newTable;
   }
   // #endregion
   // TODO: waiting for slice method in IColumn
@@ -211,21 +219,31 @@ export default class Table implements ITable {
   }
 
   public groupBy(...names: string[]): Table {
-    return this.clone({ groupBy: getGroupDesc(names, this) });
+    const groupBy = getGroupDesc(names, this);
+    if (this.debug) console.log('Groups:', groupBy);
+    return this.clone({ groupBy });
   }
   public filterBy(filterPred: Predicate) {
-    return this.clone({ filterBy: getIndexSet(filterPred, this) });
+    const filterBy = getIndexSet(filterPred, this);
+    if (this.debug) console.log('Visible:', filterBy);
+    return this.clone({ filterBy });
   }
   public orderBy(comparator: Comparator) {
-    return this.clone({ orderBy: getOrderedIndexes(comparator, this) });
+    const orderBy = getOrderedIndexes(comparator, this);
+    if (this.debug) console.log('Orders:', orderBy);
+    return this.clone({ orderBy });
   }
   public summarize(aggOpts: any) {
     // TODO: parameter validation
-    const { ops, getter } = resolveExpr(aggOpts);
+    const { ops, getter } = resolveExpr(aggOpts, { debug: this.debug });
     const t = list2Record(this.fields, 'name');
 
     const aggDescs = mapRecord(fn => fn(t, aggOps), ops);
-    return getAggregatedTable(aggDescs as any, getter, this);
+    if (this.debug) console.log('Summarize:', aggDescs);
+
+    const newTable = getAggregatedTable(aggDescs as any, getter, this);
+    newTable.debug = this.debug;
+    return newTable;
   }
   // #region alias
   public aggregate(...args: Parameters<Table['summarize']>) {
@@ -237,8 +255,8 @@ export default class Table implements ITable {
   public deleteColumns(...args: Parameters<Table['removeColumnsByNames']>) {
     return this.removeColumnsByNames(...args);
   }
-  public addColumns(...args: Parameters<Table['addColumnsByExpr']>) {
-    return this.addColumnsByExpr(...args);
+  public addColumns(...args: Parameters<Table['derive']>) {
+    return this.derive(...args);
   }
   // #endregion
 }

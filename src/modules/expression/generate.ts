@@ -12,8 +12,7 @@ const GEN_OPTS = {
 export const generateES = (esAST: ESTree.Node): string => {
   if (!esAST) throw Error("GenerateES: Empty AST");
   try {
-    const code = generate(esAST, GEN_OPTS);
-    return code;
+    return generate(esAST, GEN_OPTS);
   } catch (err) {
     throw Error(`GenerateES: ${err}`);
   }

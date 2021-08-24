@@ -3,7 +3,6 @@ import { mapRecord } from 'PureUtils';
 import { TableEx } from 'Extensions';
 
 export const getCalculatedTable = (
-  // eslint-disable-next-line @typescript-eslint/ban-types
   calcOpts: Record<string, Function>,
   table: ITable,
 ) => {
@@ -20,6 +19,6 @@ export const getCalculatedTable = (
     const calcData = mapRecord(fn => fn(rowData), calcOpts);
     mapRecord((v, k) => newData[k].push(v), { ...rowData, ...calcData });
   });
-
+  
   return TableEx.fromColumns(newData);
 };
